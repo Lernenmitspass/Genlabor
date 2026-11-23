@@ -248,13 +248,13 @@ const CC={r:'#ef4444',g:'#22c55e',y:'#facc15',k:'#0b0f17'};
 const U1G=['LCT','SI','ACTB','INS'];
 const U1M={A:['g','g','y','k'],B:['g','y','y','k'],C:['y','y','y','k'],D:['y','g','y','k']};
 const U1P=[{n:'Herr Pampelmuse',t:'Nach einem Glas Milch: Bauchschmerzen, Blähungen und Durchfall. Haushaltszucker verträgt er gut.',a:'B'},
-{n:'Frau Orange',t:'Keine Beschwerden – weder nach Milch noch nach Süßigkeiten. Sie dient als Kontrolle für den Versuch.',a:'C'},
+{n:'Frau Orange',t:'Keine Beschwerden – weder nach Milch noch nach Süßigkeiten.',a:'C'},
 {n:'Herr Tomate',t:'Nach Süßigkeiten mit Haushaltszucker: starke Blähungen und Durchfall. Milchprodukte verträgt er.',a:'D'},
 {n:'Frau Gurke',t:'Sowohl nach Milch als auch nach Haushaltszucker: Bauchschmerzen und Durchfall.',a:'A'}];
 const miniChip=(m,genes)=>`<div style="display:grid;grid-template-columns:repeat(${genes.length},minmax(0,1fr));gap:6px;background:#0f172a;padding:10px;border-radius:10px">${m.map((c,i)=>`<div style="text-align:center;color:#fff;font-size:12px;font-weight:700"><div class="dot" style="margin:auto;width:100%;max-width:46px;height:auto;aspect-ratio:1;background:${CC[c]};color:${CC[c]}"></div>${genes[i]}</div>`).join('')}</div>`;
 const u1ok={};
 add({k:'ex',t:'Übung 1',h:`<span class="kind ex">Übung 1 · vom Befund zum Leuchtmuster</span><h2>Welches Leuchtmuster gehört zu welchen Beschwerden?</h2>
-<div class="two"><div><p>Von vier Patienten wird aus der Dünndarmschleimhaut mRNA gewonnen und auf einem DNA-Chip untersucht. Drei von ihnen haben nach dem Essen Verdauungsbeschwerden, Frau Orange hat keine. Die Gene:</p>
+<div class="two"><div><p>Von vier Patienten wird aus der Dünndarmschleimhaut mRNA gewonnen und auf einem DNA-Chip untersucht. Zum Vergleich wird jedes Mal auch die mRNA einer gesunden Vergleichsperson ohne Beschwerden aufgetragen. Die Gene:</p>
 <ul><li><b>LCT</b> – Laktase: spaltet Milchzucker (Laktose)</li><li><b>SI</b> – Saccharase-Isomaltase: spaltet Haushaltszucker (Saccharose)</li><li><b>ACTB</b> – Aktin-Gen, in fast allen Zellen aktiv (Kontrolle)</li><li><b>INS</b> – Insulin-Gen, wird nur in der Bauchspeicheldrüse abgelesen</li></ul>
 <p>Fehlt ein Verdauungsenzym, gelangt der Zucker unverdaut in den Dickdarm. Dort vergären ihn Bakterien – das führt zu Blähungen, Bauchschmerzen und Durchfall.</p>
 <div class="card" style="margin-top:10px"><b>So liest du die Farben in dieser Übung</b><table style="margin-top:6px"><tr><td><span class="y">gelb</span></td><td style="text-align:left">Gen wird beim Patienten <b>und</b> bei der Vergleichsperson abgelesen</td></tr><tr><td><span class="g">grün</span></td><td style="text-align:left">Gen wird <b>nur bei der Vergleichsperson</b> abgelesen – es <b>fehlt beim Patienten</b></td></tr><tr><td><span class="r">rot</span></td><td style="text-align:left">Gen wird nur beim Patienten abgelesen</td></tr><tr><td><b>schwarz</b></td><td style="text-align:left">Gen wird bei keiner der beiden abgelesen</td></tr></table></div></div>
