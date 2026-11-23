@@ -79,7 +79,7 @@ summary{cursor:pointer;font-weight:700}
 </style>
 </head>
 <body>
-<header><h1>DNA-Chip-Labor · Genaktivität sichtbar machen</h1><div id="dots"></div></header>
+<header><h1>DNA-Chip-Labor · Genaktivität sichtbar machen</h1><button id="ovb" class="btn" style="min-height:36px;padding:0 14px;font-size:15px;background:#fff;color:#0f2236;border-color:#fff">☰ Übersicht</button><div id="dots"></div></header>
 <main id="view"></main>
 <nav class="bot"><button class="btn ghost" id="prev">← Zurück</button><button class="btn" id="next">Weiter →</button></nav>
 <script>
@@ -163,6 +163,14 @@ add({k:'info',t:'Start',h:`<div class="two"><div><span class="kind">Einführung<
 <p>Mit einem <b>DNA-Chip</b> (DNA-Microarray) kann man für Tausende Gene gleichzeitig vergleichen, ob sie im Tumor oder im gesunden Gewebe abgelesen werden.</p>
 <div class="note">So funktioniert dieses Labor: Lies die Infoseiten. An den <b>Laborstationen</b> nimmst du die passenden Stoffe und Geräte aus dem Regal, legst sie auf die Arbeitsfläche und startest die Reaktion. Zum Schluss wertest du den Chip aus und übst an weiteren Beispielen.</div></div>
 <div class="fig card">${chipSVG('scan')}</div></div>`});
+add({k:'info',t:'Übersicht',h:`<span class="kind">Übersicht</span><h2>Was möchtest du bearbeiten?</h2><p>Du kannst jeden Teil direkt anklicken. Wer zum ersten Mal mit dem DNA-Chip arbeitet, beginnt am besten mit dem Laborversuch.</p><div id="ov"></div>`,
+ init(){const G=[['Der Versuch im Labor','Infos und Laborstationen 1–5',['Info: mRNA','Station 1','Info: cDNA','Station 2','Info: Markierung','Station 3','Info: Chip','Station 4','Info: Waschen','Station 5']],
+  ['Auswertung','Den Chip deuten',['Auswertung','Bedeutung']],['Anwendungsbeispiele','Den Chip in Medizin und Forschung',['Beispiel 2','Beispiel 3']],
+  ['Übungen','Selbst ausprobieren',['Übung 1','Übung 2','Übung 3']],['Arbeitsblatt','Aufgaben und Zusatzaufgabe',['Aufgaben AB','Zusatz']]];
+  const NM={'Info: mRNA':'Info: mRNA gewinnen','Station 1':'Station 1: mRNA isolieren','Info: cDNA':'Info: Aus mRNA wird cDNA','Station 2':'Station 2: Reverse Transkription','Info: Markierung':'Info: Vervielfältigen und einfärben','Station 3':'Station 3: PCR und Markierung','Info: Chip':'Info: Der DNA-Chip','Station 4':'Station 4: Hybridisierung','Info: Waschen':'Info: Waschen und Scannen','Station 5':'Station 5: Waschen und Auslesen','Auswertung':'Was verraten die Farben?','Bedeutung':'Was bringt das der Medizin?','Beispiel 2':'Brustkrebs: Passt die Antikörper-Therapie?','Beispiel 3':'Hitzestress bei Weizen','Übung 1':'Vom Befund zum Leuchtmuster','Übung 2':'Von der Sequenz zum Leuchtmuster','Übung 3':'Von der mRNA zum leuchtenden Spot','Aufgaben AB':'Aufgaben vom Arbeitsblatt','Zusatz':'Zusatzaufgabe: Leukämie'};
+  document.getElementById('ov').innerHTML=G.map(([h,sub,ts])=>`<h3>${h} <small style="font-weight:400;color:var(--mut)">· ${sub}</small></h3><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px">${ts.map(t=>{const i=P.findIndex(p=>p.t===t),p=P[i];const lab=p.k==='lab',ok=isDone(i);
+   return`<button class="ovt" data-i="${i}" style="text-align:left;min-height:74px;padding:10px 12px;border-radius:12px;border:2px solid ${ok?'var(--g)':'var(--line)'};background:${lab?'light-dark(#ecfdf5,#11301d)':p.k==='ex'?'light-dark(#fffbeb,#33270f)':p.k==='ab'?'light-dark(#f5f3ff,#241a3d)':'var(--card)'};color:var(--ink);font:inherit;font-size:15px;cursor:pointer"><b>${NM[t]||t}</b><br><small style="color:var(--mut)">${lab?'Laborstation':p.k==='ex'?'Aufgabe':p.k==='ab'?'Arbeitsblatt':'Info'}${ok?' · ✔ erledigt':''}</small></button>`}).join('')}</div>`).join('');
+  document.getElementById('ov').onclick=e=>{const b=e.target.closest('.ovt');if(b)go(+b.dataset.i)}}});
 add({k:'info',t:'Info: mRNA',h:`<div class="two"><div><span class="kind">Info 1</span><h2>Schritt 1: Die mRNA gewinnen</h2>
 <p>Aus dem Gewebe der Patientin oder des Patienten und zum Vergleich aus Gewebe einer gesunden Person wird die <b>mRNA</b> extrahiert.</p>
 <p>Die Menge einer bestimmten mRNA zeigt, wie stark das zugehörige Gen gerade abgelesen (<b>exprimiert</b>) wird.</p>
@@ -207,18 +215,22 @@ add({k:'eval',t:'Auswertung',h:`<span class="kind">Auswertung</span><h2>Was verr
 add({k:'info',t:'Bedeutung',h:`<div class="two"><div><span class="kind">Info 6</span><h2>Was bringt das der Medizin?</h2>
 <p>Ein echter DNA-Chip prüft nicht vier, sondern Tausende Gene gleichzeitig. So entsteht ein <b>Expressionsprofil</b> – eine Art Fingerabdruck der Genaktivität.</p>
 <p>Gene, die nur im Tumor aktiv sind (rot), können Hinweise auf <b>tumorauslösende Gene</b> geben. Expressionsprofile helfen, Tumorarten zu unterscheiden und eine passende Therapie auszuwählen.</p>
-<div class="note">In den folgenden Beispielen wendest du dein Wissen an. Die Proben sind schon vorbereitet – du startest direkt den Laserscan.</div></div>
-<div class="card"><table><tr><th>Farbe</th><th>Bedeutung</th></tr><tr><td><span class="r">rot</span></td><td>Gen nur im Tumor exprimiert</td></tr><tr><td><span class="g">grün</span></td><td>Gen nur im gesunden Gewebe exprimiert</td></tr><tr><td><span class="y">gelb</span></td><td>in beiden exprimiert</td></tr><tr><td><b>schwarz</b></td><td>in keinem exprimiert</td></tr></table></div></div>`});
+<div class="note">In den folgenden Beispielen wendest du dein Wissen an. Die Proben sind schon vorbereitet – du startest direkt den Laserscan. <b>Achtung:</b> Rot und Grün stehen dort nicht immer für Tumor und gesundes Gewebe. Lies bei jedem Beispiel, welche Probe welche Farbe bekommen hat.</div></div>
+<div class="card"><table><tr><th>Farbe</th><th>Bedeutung im Tumor-Versuch</th></tr><tr><td><span class="r">rot</span></td><td>Gen nur im Tumor exprimiert</td></tr><tr><td><span class="g">grün</span></td><td>Gen nur im gesunden Gewebe exprimiert</td></tr><tr><td><span class="y">gelb</span></td><td>in beiden exprimiert</td></tr><tr><td><b>schwarz</b></td><td>in keinem exprimiert</td></tr></table></div></div>`});
 // ---- Anwendungsbeispiele ----
 const EX=[
 {t:'Beispiel 2',title:'Brustkrebs: Passt die Antikörper-Therapie?',
  intro:`<p>Bei einer Patientin wurde Brustkrebs festgestellt. Für die Therapie ist wichtig, welche Gene im Tumor aktiv sind:</p><ul><li><b>HER2</b> – Gen für einen Wachstumsfaktor-Rezeptor. Wird es im Tumor besonders stark abgelesen, wachsen die Zellen schneller. Dann hilft der Antikörper <b>Trastuzumab</b>, der HER2 blockiert.</li><li><b>ESR1</b> – Gen für den Östrogen-Rezeptor. Ist es aktiv, kann eine <b>Antihormontherapie</b> helfen.</li><li><b>ACTB</b> – Aktin-Gen, in fast allen Zellen aktiv (Kontrolle).</li><li><b>MYH7</b> – Gen für ein Muskelprotein des Herzens.</li></ul><p>Markierung wie im Labor: <span class="g">grün</span> = gesundes Brustgewebe, <span class="r">rot</span> = Tumor.</p>`,
- genes:[['HER2','#ef4444',0],['ESR1','#facc15',2],['ACTB','#facc15',2],['MYH7','#0b0f17',3]],
+ labels:['nur im Tumorgewebe aktiv','nur im gesunden Brustgewebe aktiv','in beiden Geweben aktiv','in keinem der Gewebe aktiv'],
+ hint:'Überlege, was Rot und Gelb für HER2 und ESR1 bedeuten: Wird das Gen im Tumor abgelesen?',
+ genes:[['ESR1','#facc15',2],['MYH7','#0b0f17',3],['HER2','#ef4444',0],['ACTB','#facc15',2]],
  q:'Welche Therapie ist nach dem Chip-Ergebnis sinnvoll?',opts:['Nur Trastuzumab','Nur Antihormontherapie','Trastuzumab und Antihormontherapie kommen infrage','Keine der beiden Therapien'],a:2,
  fb:'HER2 leuchtet rot: Es wird nur im Tumor exprimiert → Trastuzumab kommt infrage. ESR1 leuchtet gelb: Der Östrogen-Rezeptor wird auch im Tumor gebildet → eine Antihormontherapie kann ebenfalls helfen. ACTB (gelb) zeigt, dass der Versuch funktioniert hat; MYH7 (schwarz) wird in Brustgewebe nicht abgelesen.'},
 {t:'Beispiel 3',title:'Hitzestress bei Weizen',
  intro:`<p>Forschende untersuchen, wie Weizenpflanzen auf eine Hitzewelle reagieren. Sie vergleichen Blätter von Pflanzen bei 22 °C (<span class="g">grün markiert</span>) mit Blättern von Pflanzen nach drei Stunden bei 40 °C (<span class="r">rot markiert</span>).</p><ul><li><b>HSP70</b> – Gen für ein Hitzeschockprotein, das andere Proteine vor dem Verklumpen schützt.</li><li><b>rbcS</b> – Gen für einen Teil des Enzyms Rubisco (Fotosynthese, Calvin-Zyklus).</li><li><b>ACT</b> – Aktin-Gen (Kontrolle).</li><li><b>Gen für ein Speicherprotein im Samen</b> (Gliadin).</li></ul>`,
- genes:[['HSP70','#ef4444',0],['rbcS','#22c55e',1],['ACT','#facc15',2],['Gliadin','#0b0f17',3]],
+ labels:['nur bei 40 °C aktiv','nur bei 22 °C aktiv','bei beiden Temperaturen aktiv','bei keiner der Temperaturen aktiv'],
+ hint:'Überlege, was Rot und Grün hier bedeuten: Rot = Gen wird nur bei 40 °C abgelesen, Grün = nur bei 22 °C.',
+ genes:[['Gliadin','#0b0f17',3],['HSP70','#ef4444',0],['ACT','#facc15',2],['rbcS','#22c55e',1]],
  q:'Welche Aussage passt zum Ergebnis?',opts:['Bei Hitze wird die Fotosynthese verstärkt.','Bei Hitze werden Schutzproteine gebildet, die Bildung von Rubisco wird heruntergefahren.','Hitze verändert die Genexpression nicht.','Bei Hitze werden in den Blättern Speicherproteine gebildet.'],a:1,
  fb:'HSP70 leuchtet rot: Das Hitzeschockprotein wird nur bei 40 °C gebildet. rbcS leuchtet grün: Dieses Fotosynthese-Gen wird bei Hitze kaum noch abgelesen. Das Kontrollgen ACT ist in beiden Proben aktiv (gelb); das Speicherprotein-Gen ist in Blättern gar nicht aktiv (schwarz).'}];
 const solvedEx={};
@@ -227,10 +239,92 @@ EX.forEach((x,ei)=>{add({k:'ex',t:x.t,h:`<span class="kind ex">Anwendung · ${x.
   const draw=lit=>c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;background:#0f172a;padding:14px;border-radius:12px;margin-bottom:10px">${x.genes.map(([n,col])=>`<div style="text-align:center;color:#fff;font-size:14px;font-weight:700"><div class="dot" style="margin:auto;width:100%;max-width:70px;height:auto;aspect-ratio:1;background:${lit?col:'#475569'};color:${lit?col:'transparent'}"></div>${n}</div>`).join('')}</div>`;
   draw(solvedEx[ei]);if(solvedEx[ei]){bt.remove();ask()}
   bt.onclick=()=>{bt.disabled=true;bt.textContent='Scan läuft …';setTimeout(()=>{draw(true);bt.remove();ask()},1800)};
-  function ask(){q.innerHTML=`<h3>1. Ordne jedem Gen eine Bedeutung zu</h3>${x.genes.map(([n,col,a],k)=>`<p style="margin:8px 0 0"><b>${n}</b></p><div class="choice" data-a="${a}">${MEAN.map((m,i)=>`<button data-i="${i}">${m}</button>`).join('')}</div>`).join('')}<h3>2. ${x.q}</h3><div class="choice" data-a="${x.a}" data-final="1">${x.opts.map((m,i)=>`<button data-i="${i}">${m}</button>`).join('')}</div><div class="msg"></div>`;
+  function ask(){q.innerHTML=`<h3>1. Ordne jedem Gen eine Bedeutung zu</h3>${x.genes.map(([n,col,a],k)=>`<p style="margin:8px 0 0"><b>${n}</b></p><div class="choice" data-a="${a}">${(x.labels||MEAN).map((m,i)=>`<button data-i="${i}">${m}</button>`).join('')}</div>`).join('')}<h3>2. ${x.q}</h3><div class="choice" data-a="${x.a}" data-final="1">${x.opts.map((m,i)=>`<button data-i="${i}">${m}</button>`).join('')}</div><div class="msg"></div>`;
    q.onclick=e=>{const b=e.target.closest('button');if(!b)return;const w=b.parentElement;w.querySelectorAll('button').forEach(z=>z.className='');const ok=+b.dataset.i===+w.dataset.a;b.className=ok?'right':'wrong';w.dataset.ok=ok?1:0;
-    if(w.dataset.final){q.querySelector('.msg').innerHTML=ok?`<div class="fb ok">✔ ${x.fb}</div>`:'<div class="fb bad">✘ Noch nicht. Überlege, was die Farben rot und gelb für die beiden Therapie- bzw. Schutzgene bedeuten.</div>'}
+    if(w.dataset.final){q.querySelector('.msg').innerHTML=ok?`<div class="fb ok">✔ ${x.fb}</div>`:`<div class="fb bad">✘ Noch nicht. ${x.hint}</div>`}
     if([...q.querySelectorAll('.choice')].every(z=>z.dataset.ok==='1')){solvedEx[ei]=1;unlock()}}}},need:()=>!!solvedEx[ei]})});
+// ---- Übung 1: Befund -> Leuchtmuster ----
+const CC={r:'#ef4444',g:'#22c55e',y:'#facc15',k:'#0b0f17'};
+const U1G=['LCT','SI','ACTB','INS'];
+const U1M={A:['g','g','y','k'],B:['g','y','y','k'],C:['y','y','y','k'],D:['y','g','y','k']};
+const U1P=[{n:'Patient 1',t:'Nach einem Glas Milch: Bauchschmerzen, Blähungen und Durchfall. Haushaltszucker verträgt er gut.',a:'B'},
+{n:'Patientin 2',t:'Keine Beschwerden – weder nach Milch noch nach Süßigkeiten. Sie dient als Kontrolle für den Versuch.',a:'C'},
+{n:'Patient 3',t:'Nach Süßigkeiten mit Haushaltszucker: starke Blähungen und Durchfall. Milchprodukte verträgt er.',a:'D'},
+{n:'Patientin 4',t:'Sowohl nach Milch als auch nach Haushaltszucker: Bauchschmerzen und Durchfall.',a:'A'}];
+const miniChip=(m,genes)=>`<div style="display:grid;grid-template-columns:repeat(${genes.length},minmax(0,1fr));gap:6px;background:#0f172a;padding:10px;border-radius:10px">${m.map((c,i)=>`<div style="text-align:center;color:#fff;font-size:12px;font-weight:700"><div class="dot" style="margin:auto;width:100%;max-width:46px;height:auto;aspect-ratio:1;background:${CC[c]};color:${CC[c]}"></div>${genes[i]}</div>`).join('')}</div>`;
+const u1ok={};
+add({k:'ex',t:'Übung 1',h:`<span class="kind ex">Übung 1 · vom Befund zum Leuchtmuster</span><h2>Welches Leuchtmuster gehört zu welchen Beschwerden?</h2>
+<div class="two"><div><p>Vier Personen haben nach dem Essen unterschiedliche Beschwerden. Aus ihrer Dünndarmschleimhaut wird mRNA gewonnen und auf einem DNA-Chip untersucht. Die Gene:</p>
+<ul><li><b>LCT</b> – Laktase: spaltet Milchzucker (Laktose)</li><li><b>SI</b> – Saccharase-Isomaltase: spaltet Haushaltszucker (Saccharose)</li><li><b>ACTB</b> – Aktin-Gen, in fast allen Zellen aktiv (Kontrolle)</li><li><b>INS</b> – Insulin-Gen, wird nur in der Bauchspeicheldrüse abgelesen</li></ul>
+<p>Fehlt ein Verdauungsenzym, gelangt der Zucker unverdaut in den Dickdarm. Dort vergären ihn Bakterien – das führt zu Blähungen, Bauchschmerzen und Durchfall.</p>
+<div class="note">Markierung: <span class="g">grün</span> = Darmgewebe einer beschwerdefreien Vergleichsperson, <span class="r">rot</span> = Darmgewebe der jeweiligen Person. Nimm an, dass die Beschwerden entstehen, weil das passende Gen in den Darmzellen nicht abgelesen wird.</div></div>
+<div class="card"><h3 style="margin-top:0">Die vier Leuchtmuster</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">${Object.entries(U1M).map(([k,m])=>`<div><b>Muster ${k}</b>${miniChip(m,U1G)}</div>`).join('')}</div></div></div>
+<h3>Ordne jeder Person ihr Leuchtmuster zu</h3><div id="u1"></div>`,
+ init(){const box=document.getElementById('u1');box.innerHTML=U1P.map((p,i)=>`<div class="spotq" style="grid-template-columns:minmax(0,1fr)"><div><b>${p.n}:</b> ${p.t}<div class="choice" data-i="${i}">${Object.keys(U1M).map(k=>`<button class="${u1ok[i]&&k===p.a?'right':''}">Muster ${k}</button>`).join('')}</div><div class="msg"></div></div></div>`).join('');
+  box.onclick=e=>{const b=e.target.closest('button');if(!b)return;const w=b.parentElement,i=+w.dataset.i,k=b.textContent.slice(-1),p=U1P[i];w.querySelectorAll('button').forEach(z=>z.className='');const m=w.nextElementSibling;
+   if(k===p.a){b.className='right';u1ok[i]=1;m.innerHTML='✔ '+['LCT leuchtet grün: Laktase wird nur bei der Vergleichsperson gebildet, nicht beim Patienten. SI ist gelb – beide bilden Saccharase.','Alle Verdauungsgene gelb: Beide Personen bilden Laktase und Saccharase. INS ist schwarz, weil Darmzellen kein Insulin bilden.','SI leuchtet grün: Saccharase-Isomaltase fehlt beim Patienten. LCT ist gelb – Laktase ist vorhanden.','LCT und SI leuchten grün: Beide Enzyme fehlen bei der Patientin.'][i]}
+   else{b.className='wrong';m.textContent='✘ Überlege: Welches Enzym fehlt bei dieser Person? Dann wird das Gen nur in der grün markierten Probe abgelesen.'}
+   if(Object.keys(u1ok).length===4)unlock()}},need:()=>Object.keys(u1ok).length===4});
+// ---- Übung 2: Hybridisierung -> Leuchtmuster ----
+const U2G=[['GATCCTAG',2],['AGCTTGCA',3],['TTAGCCGA',3]],U2R=[['TTAGCCGA',3],['CCATGGTA',2],['GCAATCGT',3]];
+const U2S=[{p:comp('CCATGGTA'),a:'r'},{p:'GATCCTAG',a:'k'},{p:comp('TTAGCCGA'),a:'y'},{p:comp('AGCTTGCA'),a:'g'},{p:comp('ACGTTACG'),a:'k'},{p:comp('GCAATCGT'),a:'r'}];
+const CN={r:'rot',g:'grün',y:'gelb',k:'schwarz'};const u2={};
+add({k:'ex',t:'Übung 2',h:`<span class="kind ex">Übung 2 · von der Sequenz zum Leuchtmuster</span><h2>Wie wird jeder Spot leuchten?</h2>
+<div class="two"><div><p>Auf den Chip werden diese markierten cDNA-Moleküle gegeben (Basensequenz jeweils 5′→3′):</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" class="card"><div><b class="g">grün markierte cDNA</b>${strands(U2G,'#16a34a','c')}</div><div><b class="r">rot markierte cDNA</b>${strands(U2R,'#dc2626','s')}</div></div>
+<div class="note">Eine cDNA bindet nur an eine Sonde, deren Basen <b>komplementär</b> sind (A–T, G–C). Die Sonden sind von 3′ nach 5′ notiert – du kannst die Basen also direkt untereinander vergleichen. Danach wird gewaschen: Alles, was nicht gebunden hat, ist weg.</div></div>
+<div class="card"><h3 style="margin-top:0">Sage für jeden Spot die Farbe voraus</h3><div id="u2"></div><button class="btn" id="u2scan" disabled>Laserscan: Vorhersage prüfen</button><div id="u2res"></div></div></div>`,
+ init(){const box=document.getElementById('u2'),bt=document.getElementById('u2scan');
+  box.innerHTML=U2S.map((x,i)=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>Spot ${i+1}</b> <span class="seq">Sonde 3′-${x.p}-5′</span><div class="choice" data-i="${i}">${Object.entries(CN).map(([c,n])=>`<button data-c="${c}" class="${u2[i]===c?'right':''}"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${CC[c]};vertical-align:-1px;border:1px solid #64748b"></span> ${n}</button>`).join('')}</div><div class="msg" style="font-size:15px"></div></div>`).join('');
+  const ready=()=>{bt.disabled=Object.keys(u2).length<U2S.length};ready();
+  box.onclick=e=>{const b=e.target.closest('button');if(!b)return;const w=b.parentElement,i=+w.dataset.i;w.querySelectorAll('button').forEach(z=>z.className='');b.className='sel1';b.style.borderColor='var(--acc)';u2[i]=b.dataset.c;w.nextElementSibling.textContent='';ready()};
+  bt.onclick=()=>{let ok=0;U2S.forEach((x,i)=>{const w=box.querySelector(`[data-i="${i}"]`),m=w.nextElementSibling,right=u2[i]===x.a;w.querySelectorAll('button').forEach(z=>{z.style.borderColor='';z.className=z.dataset.c===u2[i]?(right?'right':'wrong'):''});
+    const bind=[...U2G.map(s=>[s[0],'g']),...U2R.map(s=>[s[0],'r'])].filter(([s])=>comp(s)===x.p);
+    m.innerHTML=right?`✔ ${CN[x.a]}: ${bind.length?'bindet '+[...new Set(bind.map(b=>b[1]))].map(c=>c==='g'?'grün':'rot').join(' und ')+' markierte cDNA':(x.p==='GATCCTAG'?'Die Sonde hat dieselbe Basenfolge wie eine grüne cDNA – gleich ist aber nicht komplementär, also bindet nichts.':'Zu dieser Sonde passt keine der cDNAs – nichts bindet, alles wird abgewaschen.')}`:`✘ Vergleiche Base für Base: Welche cDNA ist zu 3′-${x.p}-5′ komplementär?${x.a==='k'&&x.p==='GATCCTAG'?' (Tipp: Gleiche Basenfolge heißt nicht komplementär!)':''}`;if(right)ok++});
+   document.getElementById('u2res').innerHTML=`<div class="fig" style="margin-top:12px">${miniChip(U2S.map(x=>x.a),U2S.map((x,i)=>'Spot '+(i+1)))}</div><div class="fb ${ok===U2S.length?'ok':'bad'}">${ok} von ${U2S.length} Spots richtig vorhergesagt.${ok===U2S.length?' Super!':' Korrigiere die falschen Spots und prüfe erneut.'}</div>`;
+   if(ok===U2S.length){u2.done=1;unlock()}}},need:()=>!!u2.done});
+// ---- Übung 3: mRNA -> cDNA -> Sonde -> Farbe ----
+const rc=m=>m.replace(/./g,c=>({A:'T',U:'A',G:'C',C:'G'})[c]); // cDNA 3'->5' unter die mRNA geschrieben
+const U3M=[{id:'a1',s:'g',m:'AUGGCUAC'},{id:'a2',s:'g',m:'CCGAUUGA'},{id:'a3',s:'g',m:'GGUACAUC'},{id:'b1',s:'r',m:'CCGAUUGA'},{id:'b2',s:'r',m:'UUCGGACU'},{id:'b3',s:'r',m:'AGCAUGGU'}];
+const U3S=[{p:'TTCGGACT',a:'r'},{p:'ATGGCTAC',a:'g'},{p:'CACGTTAG',a:'k'},{p:'CCGATTGA',a:'y'},{p:'GGTACATC',a:'g'}];
+const match=(m,p)=>m.replace(/U/g,'T')===p;
+const u3={step:1,ok:{},place:{},col:{},done:0,msg:{},m2:''};
+add({k:'ex',t:'Übung 3',h:`<span class="kind ex">Übung 3 · Schritt für Schritt</span><h2>Von der mRNA zum leuchtenden Spot</h2>
+<p>Aus zwei Gewebeproben wurde mRNA isoliert. <span class="g">Probe 1</span> stammt aus gesundem Gewebe und wird grün markiert, <span class="r">Probe 2</span> stammt aus Tumorgewebe und wird rot markiert. Bearbeite die drei Schritte nacheinander.</p>
+<div id="u3"></div>`,
+ init(){draw3()},need:()=>!!u3.done});
+function tok(x){return`<span class="seq" style="display:inline-flex;align-items:center;gap:6px;background:var(--card);color:var(--ink);border:2px solid ${x.s==='g'?'#16a34a':'#dc2626'};border-radius:8px;padding:4px 8px;font-size:14px">3′-${rc(x.m)}-5′ ${x.s==='g'?'<span style="width:11px;height:11px;border-radius:50%;background:#16a34a;display:inline-block"></span>':'<span style="width:11px;height:11px;background:#dc2626;display:inline-block"></span>'}</span>`}
+function draw3(){const box=document.getElementById('u3');if(!box)return;
+ const s1=`<div class="card"><h3 style="margin-top:0">Schritt 1: Bilde zu jeder mRNA die cDNA</h3><p style="font-size:15px">Die reverse Transkriptase baut zu jeder Base die komplementäre DNA-Base ein: <b>A → T, U → A, G → C, C → G</b>. Schreibe die cDNA-Basen direkt unter die mRNA (die cDNA verläuft dann von 3′ nach 5′).</p>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px">${['g','r'].map(sp=>`<div><b class="${sp}">Probe ${sp==='g'?'1 – gesund':'2 – Tumor'}</b>${U3M.filter(x=>x.s===sp).map(x=>`<div style="margin:8px 0"><div class="seq">mRNA 5′-${x.m}-3′</div><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span class="seq">cDNA 3′-</span><input data-id="${x.id}" maxlength="8" value="${u3.ok[x.id]?rc(x.m):((u3.val||{})[x.id]||'')}" ${u3.ok[x.id]?'disabled':''} style="font:500 16px 'Fira Code',monospace;width:9.5em;letter-spacing:.08em;padding:6px;border-radius:8px;border:2px solid ${u3.ok[x.id]?'var(--g)':(u3.msg[x.id]?'var(--r)':'var(--line)')};text-transform:uppercase;background:var(--card);color:var(--ink)" aria-label="cDNA zu ${x.m}"><span class="seq">-5′</span><span class="m3" data-for="${x.id}" style="font-size:14px">${u3.ok[x.id]?'✔':(u3.msg[x.id]||'')}</span></div></div>`).join('')}</div>`).join('')}</div>
+ <button class="btn" id="u3c1">cDNA prüfen</button></div>`;
+ const free=U3M.filter(x=>!(x.id in u3.place));
+ const s2=u3.step<2?'':`<div class="card" style="margin-top:14px"><h3 style="margin-top:0">Schritt 2: Ziehe jede markierte cDNA auf die passende Sonde</h3><p style="font-size:15px">Die Sonden sind von 5′ nach 3′ notiert. Eine cDNA bindet nur, wenn alle Basen komplementär sind. Passt keine Sonde, ziehe die cDNA in den Abfluss – sie wird abgewaschen. <i>Auf dem Tablet: erst die cDNA antippen, dann das Ziel.</i></p>
+ <div id="pool" style="display:flex;flex-wrap:wrap;gap:8px;min-height:44px;padding:8px;border:2px dashed var(--line);border-radius:10px">${free.map(x=>`<span class="tk" draggable="true" data-id="${x.id}" style="cursor:grab;${u3.pick===x.id?'outline:3px solid #f59e0b;border-radius:8px':''}">${tok(x)}</span>`).join('')||'<span style="color:var(--mut)">Alle cDNAs verteilt.</span>'}</div>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:12px">${U3S.map((sp,i)=>`<div class="drop" data-s="${i}" style="background:#0f172a;color:#fff;border-radius:12px;padding:10px;min-height:120px"><b>Spot ${i+1}</b><div class="seq" style="font-size:13px;color:#cbd5e1">Sonde 5′-${sp.p}-3′</div><div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">${U3M.filter(x=>u3.place[x.id]===i).map(tok).join('')}</div></div>`).join('')}
+ <div class="drop" data-s="w" style="background:light-dark(#e0f2fe,#0c2a3f);border-radius:12px;padding:10px;min-height:120px;border:2px dashed #38bdf8"><b>🚿 Abfluss</b><div style="font-size:13px">keine passende Sonde – wird abgewaschen</div><div style="display:flex;flex-direction:column;gap:4px;margin-top:6px">${U3M.filter(x=>u3.place[x.id]==='w').map(tok).join('')}</div></div></div><div id="u3m2" style="margin-top:8px">${u3.m2}</div></div>`;
+ const s3=u3.step<3?'':`<div class="card" style="margin-top:14px"><h3 style="margin-top:0">Schritt 3: Wie leuchtet der Chip an diesen Stellen?</h3>${U3S.map((sp,i)=>`<div style="padding:6px 0;border-bottom:1px solid var(--line)"><b>Spot ${i+1}</b><div class="choice" data-i="${i}">${Object.entries(CN).map(([c,n])=>`<button data-c="${c}" class="${u3.col[i]===c?(u3.checked?(c===sp.a?'right':'wrong'):''):''}" style="${u3.col[i]===c&&!u3.checked?'border-color:var(--acc)':''}"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${CC[c]};vertical-align:-1px;border:1px solid #64748b"></span> ${n}</button>`).join('')}</div></div>`).join('')}
+ <button class="btn" id="u3c3" ${Object.keys(u3.col).length<U3S.length?'disabled':''}>Laserscan starten</button><div id="u3m3"></div></div>`;
+ box.innerHTML=s1+s2+s3;
+ // Schritt 1
+ document.getElementById('u3c1').onclick=()=>{let all=true;box.querySelectorAll('input[data-id]').forEach(inp=>{const x=U3M.find(z=>z.id===inp.dataset.id);if(u3.ok[x.id])return;const v=inp.value.toUpperCase().replace(/[^ACGTU]/g,'');u3.val=u3.val||{};u3.val[x.id]=inp.value;
+   if(v===rc(x.m)){u3.ok[x.id]=1;delete u3.msg[x.id]}else{all=false;u3.msg[x.id]=v.includes('U')?'✘ In DNA gibt es kein U – statt U steht T.':v===rc(x.m).split('').reverse().join('')?'✘ Richtung beachten: Schreibe die Basen genau unter die mRNA-Basen.':'✘ Prüfe Base für Base: A→T, U→A, G→C, C→G.'}});
+  if(Object.keys(u3.ok).length===U3M.length&&u3.step<2)u3.step=2;draw3()};
+ // Schritt 2
+ if(u3.step>=2){const msg=document.getElementById('u3m2');
+  const put=(id,t)=>{const x=U3M.find(z=>z.id===id);
+   if(t==='w'){if(U3S.some(sp=>match(x.m,sp.p))){u3.m2='<div class="fb bad">✘ Diese cDNA hat eine passende Sonde auf dem Chip – sie wird nicht abgewaschen. Suche den Spot!</div>';u3.pick=null;draw3();return}}
+   else if(!match(x.m,U3S[+t].p)){u3.m2=`<div class="fb bad">✘ Die cDNA 3′-${rc(x.m)}-5′ ist nicht komplementär zur Sonde von Spot ${+t+1}. Vergleiche Base für Base.</div>`;u3.pick=null;draw3();return}
+   u3.place[id]=t==='w'?'w':+t;u3.pick=null;
+   if(Object.keys(u3.place).length===U3M.length&&u3.step<3){u3.step=3}
+   u3.m2=t==='w'?'<div class="fb ok">✔ Richtig – diese cDNA findet keinen Partner und wird abgewaschen.</div>':'<div class="fb ok">✔ Passt! Die cDNA hybridisiert mit der Sonde.</div>';draw3()};
+  box.querySelectorAll('.tk').forEach(t=>{t.ondragstart=e=>e.dataTransfer.setData('text/plain',t.dataset.id);t.onclick=()=>{u3.pick=u3.pick===t.dataset.id?null:t.dataset.id;draw3()}});
+  box.querySelectorAll('.drop').forEach(d=>{d.ondragover=e=>e.preventDefault();d.ondrop=e=>{e.preventDefault();put(e.dataTransfer.getData('text/plain'),d.dataset.s)};d.onclick=e=>{if(u3.pick&&!e.target.closest('.tk'))put(u3.pick,d.dataset.s)}})}
+ // Schritt 3
+ if(u3.step>=3){box.querySelectorAll('.choice[data-i]').forEach(w=>w.onclick=e=>{const b=e.target.closest('button');if(!b)return;u3.col[+w.dataset.i]=b.dataset.c;u3.checked=0;draw3()});
+  document.getElementById('u3c3').onclick=()=>{u3.checked=1;const ok=U3S.filter((sp,i)=>u3.col[i]===sp.a).length;draw3();
+   document.getElementById('u3m3').innerHTML=`<div style="margin-top:12px">${miniChip(U3S.map(sp=>sp.a),U3S.map((sp,i)=>'Spot '+(i+1)))}</div><div class="fb ${ok===U3S.length?'ok':'bad'}">${ok===U3S.length?'✔ Alle Spots richtig! Spot 4 leuchtet gelb, weil die mRNA CCGAUUGA in beiden Proben vorkommt. Die Tumor-mRNA AGCAUGGU hatte keine Sonde und wurde abgewaschen; Spot 3 bleibt schwarz.':ok+' von '+U3S.length+' richtig. Schau, welche Farben die cDNAs auf dem jeweiligen Spot haben, und korrigiere.'}</div>`;
+   if(ok===U3S.length){u3.done=1;unlock()}}}}
 // ---- Arbeitsblatt-Aufgaben 1:1 ----
 add({k:'ab',t:'Aufgaben AB',h:`<span class="kind ab">Arbeitsblatt</span><h2>DNA-Microarrays in der Tumordiagnostik</h2>
 <div class="two"><div><p>DNA-Microarrays werden in der medizinischen Diagnostik z. B. für den Nachweis von tumorauslösenden Genen verwendet. Dazu wird aus Geweben einer Patientin oder eines Patienten sowie zum Vergleich aus Gewebe einer gesunden Person mRNA extrahiert. Daraus wird mit reverser Transkriptase cDNA (komplementäre DNA) gebildet und mittels PCR vervielfältigt. Je nachdem, ob die Proben von gesundem Gewebe oder Tumorgewebe stammen, werden die einzelsträngigen cDNA-Moleküle dabei mit einem grün bzw. mit einem rot fluoreszierenden Farbstoff markiert [B 1]. Diese Moleküle werden gemeinsam auf einen Glasträger aufgebracht, auf dem sich in festgelegter Anordnung in kleinen Vertiefungen kurze Gen-Sonden befinden. Dies sind Tausende von Kopien bestimmter Oligonucleotide, die jeweils einem Gen zugeordnet werden können [B 2]. Nach Hybridisierung der komplementären Moleküle und Abwaschen nicht gebundener Fragmente wird das Ergebnis als farbig fluoreszierende Punkte auf dem DNA-Chip sichtbar.</p>
@@ -255,14 +349,15 @@ add({k:'info',t:'Fertig',h:`<span class="kind">Geschafft</span><h2>Du hast den D
 // ---------- Labor-Logik ----------
 const done=new Set(),solvedEval=new Set();let cur=0,maxSeen=0,sel=new Set();
 const V=document.getElementById('view'),NX=document.getElementById('next'),PV=document.getElementById('prev'),D=document.getElementById('dots');
-function unlock(){done.add(cur);NX.disabled=false;dots()}
-function dots(){D.innerHTML=P.map((p,i)=>`<button title="${p.t}" class="${i===cur?'cur':(i<=maxSeen?'done':'')}" ${i>maxSeen?'disabled':''} data-i="${i}">${i+1}</button>`).join('')}
+function unlock(){done.add(cur);dots()}
+function isDone(i){const p=P[i];return p.k==='lab'?done.has(i):(p.need?!!p.need():false)}
+function dots(){D.innerHTML=P.map((p,i)=>`<button title="${p.t}" class="${i===cur?'cur':(isDone(i)?'done':'')}" data-i="${i}">${i+1}</button>`).join('')}
 D.onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)go(+b.dataset.i)};
 function go(i){cur=i;maxSeen=Math.max(maxSeen,i);const p=P[i];sel=new Set();
  if(p.k==='lab')renderLab(p.st);else{V.innerHTML=p.h;p.init&&p.init()}
- const blocked=(p.k==='lab'&&!done.has(i))||(p.need&&!p.need());NX.disabled=blocked||i===P.length-1;PV.disabled=i===0;
+ NX.disabled=i===P.length-1;PV.disabled=i===0;
  NX.textContent=i===P.length-1?'Ende':'Weiter →';dots();window.scrollTo({top:0,behavior:'smooth'})}
-NX.onclick=()=>go(cur+1);PV.onclick=()=>go(cur-1);
+NX.onclick=()=>go(cur+1);document.getElementById('ovb').onclick=()=>go(1);PV.onclick=()=>go(cur-1);
 function renderLab(st){
  V.innerHTML=`<span class="kind lab">Laborstation</span><h2>${st.title}</h2><div class="lab" id="labgrid"><div class="shelf"><h3>Regal – tippe an, was du brauchst</h3>${[0,1,2].map(r=>`<div class="board">${ORDER.slice(r*7,r*7+7).map(id=>`<button class="item" data-id="${id}" title="${ITEMS[id].d}">${icon(ITEMS[id].ic,ITEMS[id].c)}<span>${ITEMS[id].n}</span></button>`).join('')}</div>`).join('')}</div>
  <div class="bench"><div class="task"><b>Auftrag:</b> ${st.task}</div>${st.carry.length?`<div class="carry">Aus dem vorigen Schritt: ${st.carry.map(c=>`<span>${c}</span>`).join('')}</div>`:''}<b>Arbeitsfläche</b> <small style="color:var(--mut)">(nochmal tippen = zurück ins Regal)</small><div class="onbench" id="ob"></div><div id="desc" style="font-size:14px;color:var(--mut);margin-top:6px"></div>
