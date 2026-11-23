@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DNA-Chip Labor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Fira+Code:wght@500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: freundlich-klar, ein Laborpraktikum für die Oberstufe
+   IDEA: Laborbank mit Regal – man holt Reagenzien, startet die Reaktion, der Chip leuchtet
+   PICTURE: Regal + Arbeitsfläche, farbiger Chip mit rot/grün/gelb/schwarz leuchtenden Punkten
+   COLOUR and TYPE: Nachtblau-Labor, Grün = gesund, Rot = Tumor, Gelb = beide; Atkinson Hyperlegible
+   LAYOUT: Kopfzeile mit Fortschritt, Inhalt in einer Karte, Navigation unten */
+:root{color-scheme:light dark;
+--bg:light-dark(#eef3f7,#0d1520);--card:light-dark(#ffffff,#152232);--ink:light-dark(#0f1c2b,#e6eef6);--mut:light-dark(#4b5d70,#9fb2c5);
+--line:light-dark(#d5dfe8,#2a3b4f);--nav:#0f2236;--acc:#1f7ae0;--g:#16a34a;--r:#dc2626;--y:#eab308;--wood:light-dark(#b98a55,#7a5633);--shelf:light-dark(#f6ead9,#2a2117)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Atkinson Hyperlegible",system-ui,sans-serif;overflow-x:clip}
+header{background:var(--nav);color:#fff;padding:12px max(3vw,14px);display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+header h1{font-size:19px;margin:0;flex:1 1 220px}
+#dots{display:flex;gap:6px;flex-wrap:wrap}
+#dots button{width:28px;height:28px;border-radius:50%;border:2px solid #4d6a88;background:transparent;color:#cfe0f1;font-weight:700;font-size:12px;font-family:inherit;cursor:pointer;padding:0}
+#dots button.done{background:#2f5d8a;border-color:#2f5d8a}#dots button.cur{background:#fff;color:var(--nav);border-color:#fff}
+#dots button:disabled{opacity:.35;cursor:default}
+main{max-width:1240px;margin:0 auto;padding:clamp(14px,3vw,32px) max(3vw,12px) 110px}
+.kind{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:99px;background:#dbeafe;color:#1e40af;margin-bottom:8px}
+.kind.lab{background:#dcfce7;color:#166534}.kind.ex{background:#fef3c7;color:#92400e}.kind.ab{background:#ede9fe;color:#5b21b6}
+h2{font-size:clamp(26px,3.4vw,40px);line-height:1.08;margin:0 0 14px;text-wrap:balance}
+h3{font-size:20px;margin:18px 0 8px}
+p{max-width:72ch;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(16px,2.4vw,28px)}
+.two{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(16px,3vw,36px);align-items:start}
+@media(max-width:820px){.two{grid-template-columns:minmax(0,1fr)}}
+.fig svg{width:100%;height:auto;display:block}
+.note{border-left:5px solid var(--acc);background:light-dark(#eef5ff,#13283f);padding:10px 14px;border-radius:8px;margin:12px 0}
+.g{color:var(--g);font-weight:700}.r{color:var(--r);font-weight:700}.y{color:#b48a00;font-weight:700}
+.seq{font:500 15px "Fira Code",monospace;letter-spacing:.06em}
+nav.bot{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;padding:10px max(3vw,12px);z-index:5}
+.btn{font-weight:700;font-size:17px;font-family:inherit;min-height:46px;padding:0 20px;border-radius:12px;border:2px solid var(--acc);background:var(--acc);color:#fff;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--acc)}.btn:disabled{opacity:.35;cursor:not-allowed}
+.btn:focus-visible,button:focus-visible{outline:3px solid #f59e0b;outline-offset:2px}
+/* Labor */
+.lab{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:900px){.lab{grid-template-columns:minmax(0,1fr)}.bench{order:-1}}
+.shelf{background:var(--shelf);border-radius:14px;padding:12px 12px 4px;border:1px solid var(--line)}
+.shelf h3{margin:0 0 8px;font-size:16px}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px 8px;padding-bottom:10px;border-bottom:9px solid var(--wood);margin-bottom:10px}
+.item{background:var(--card);border:2px solid var(--line);border-radius:12px;padding:6px 4px 6px;text-align:center;cursor:pointer;font-weight:700;font-size:13px;line-height:1.2;font-family:inherit;color:var(--ink);min-height:104px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s}
+.item svg{width:46px;height:46px}.item:hover{transform:translateY(-3px)}
+.item.sel{opacity:.35;transform:none}
+.bench{background:light-dark(#e8eef4,#1b2a3b);border-radius:14px;padding:14px;border:1px solid var(--line);position:relative;min-height:260px}
+.task{background:var(--card);border-radius:12px;padding:12px 14px;border:2px dashed var(--acc);margin-bottom:12px}
+.onbench{display:flex;flex-wrap:wrap;gap:8px;min-height:70px;align-items:flex-start}
+.onbench .item{min-height:auto;width:96px;font-size:12px}.onbench .item svg{width:34px;height:34px}
+.carry{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 10px;font-size:14px;color:var(--mut)}
+.carry span{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:3px 10px}
+.fb{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:16px}
+.fb.bad{background:light-dark(#fee2e2,#3a1517);border:1px solid #fca5a5}.fb.ok{background:light-dark(#dcfce7,#11301d);border:1px solid #86efac}
+.run{text-align:center;padding:10px}.bar{height:14px;border-radius:7px;background:var(--line);overflow:hidden;margin:10px auto;max-width:420px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--g),var(--acc),var(--r))}
+.shake{animation:sh .5s infinite}@keyframes sh{0%,100%{transform:rotate(0)}25%{transform:rotate(-6deg)}75%{transform:rotate(6deg)}}
+.choice{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.choice button{font-weight:700;font-size:15px;font-family:inherit;min-height:44px;padding:0 14px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.choice button.right{border-color:var(--g);background:light-dark(#dcfce7,#11301d)}.choice button.wrong{border-color:var(--r);background:light-dark(#fee2e2,#3a1517)}
+.spotq{display:grid;grid-template-columns:64px minmax(0,1fr);gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.dot{width:56px;height:56px;border-radius:50%;box-shadow:0 0 18px currentColor;border:3px solid #0b1220}
+table{border-collapse:collapse;width:100%;font-size:15px}td,th{border:1px solid var(--line);padding:6px 8px;text-align:center}
+.arr{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;max-width:330px}
+.arr div{aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:11px;font-weight:700;color:#fff;background:#111827;border:2px solid #334155}
+.arr div.h{background:transparent;border:0;color:var(--ink);border-radius:0}
+.arr div.on{background:var(--y);color:#111;box-shadow:0 0 10px var(--y)}
+.scroll{overflow-x:auto}.scroll table{min-width:620px}
+details{margin:10px 0;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--card)}
+summary{cursor:pointer;font-weight:700}
+.scan{animation:scan 2.4s linear}@keyframes scan{from{transform:translateY(0)}to{transform:translateY(260px)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><h1>DNA-Chip-Labor · Genaktivität sichtbar machen</h1><div id="dots"></div></header>
+<main id="view"></main>
+<nav class="bot"><button class="btn ghost" id="prev">← Zurück</button><button class="btn" id="next">Weiter →</button></nav>
+<script>
+{
+// ---------- Daten ----------
+const ITEMS={
+gewebe_g:{n:'Gewebeprobe gesund',ic:'dish',c:'#f4a6a6',d:'Gewebe einer gesunden Person (Vergleichsprobe).'},
+gewebe_t:{n:'Gewebeprobe Tumor',ic:'dish',c:'#9b3b3b',d:'Gewebe aus dem Tumor der Patientin / des Patienten.'},
+kit:{n:'RNA-Isolierungs-Kit',ic:'box',c:'#2563eb',d:'Schließt die Zellen auf und trennt die mRNA von DNA und Proteinen.'},
+rnase:{n:'RNase',ic:'bottle',c:'#7c3aed',d:'Enzym, das RNA abbaut.',why:'RNase baut RNA ab – damit würdest du deine mRNA zerstören!'},
+rt:{n:'Reverse Transkriptase',ic:'tube',c:'#f97316',d:'Enzym (aus Retroviren), das zu einer RNA die komplementäre DNA (cDNA) bildet.'},
+dntp:{n:'Nucleotide (dNTPs)',ic:'tube',c:'#0ea5e9',d:'Bausteine A, T, G, C für neue DNA-Stränge.'},
+primer:{n:'Primer',ic:'tube',c:'#64748b',d:'Kurze Startstücke, an denen Polymerasen mit der Synthese beginnen.'},
+taq:{n:'Taq-Polymerase',ic:'tube',c:'#facc15',d:'Hitzestabile DNA-Polymerase für die PCR.'},
+gruen:{n:'Fluoreszenz­farbstoff grün',ic:'bottle',c:'#16a34a',d:'Leuchtet grün, wenn er mit Laserlicht angeregt wird.'},
+rot:{n:'Fluoreszenz­farbstoff rot',ic:'bottle',c:'#dc2626',d:'Leuchtet rot, wenn er mit Laserlicht angeregt wird.'},
+chip:{n:'DNA-Chip mit Gen-Sonden',ic:'chip',c:'#334155',d:'Glasträger mit Tausenden Spots; jeder Spot enthält Kopien einer Gen-Sonde (Oligonucleotid).'},
+hyb:{n:'Hybridisierungs­puffer',ic:'bottle',c:'#14b8a6',d:'Salzlösung, in der sich komplementäre Stränge gut zusammenlagern.'},
+wasch:{n:'Waschpuffer',ic:'bottle',c:'#93c5fd',d:'Spült alle cDNA-Moleküle weg, die nicht fest gebunden haben.'},
+scanner:{n:'Laserscanner',ic:'device',c:'#1e293b',d:'Regt die Farbstoffe mit Laserlicht an und misst die Fluoreszenz jedes Spots.'},
+restr:{n:'Restriktions­enzym EcoRI',ic:'tube',c:'#a855f7',d:'Schneidet DNA an der Erkennungsstelle GAATTC.',why:'Ein Restriktionsenzym schneidet DNA – das brauchst du für den DNA-Chip nicht.'},
+ligase:{n:'DNA-Ligase',ic:'tube',c:'#ec4899',d:'Verknüpft DNA-Stücke miteinander.',why:'Die Ligase verknüpft DNA-Stücke (z. B. beim Klonieren) – hier wird nichts verknüpft.'},
+gel:{n:'Agarosegel',ic:'gel',c:'#cbd5e1',d:'Trennt DNA-Stücke nach ihrer Länge (Gelelektrophorese).',why:'Mit dem Gel trennst du DNA nach der Länge – für den DNA-Chip ist das nicht nötig.'},
+antik:{n:'Antikörper',ic:'bottle',c:'#f59e0b',d:'Erkennen bestimmte Proteine.',why:'Antikörper erkennen Proteine – auf dem DNA-Chip werden aber Nucleinsäuren nachgewiesen.'},
+mikro:{n:'Lichtmikroskop',ic:'micro',c:'#475569',d:'Vergrößert Zellen.',why:'Die Fluoreszenz der vielen winzigen Spots wird mit dem Laserscanner gemessen, nicht mit dem Lichtmikroskop.'}
+};
+const ORDER=['gewebe_g','gewebe_t','kit','rnase','rt','dntp','primer','taq','restr','gruen','rot','ligase','chip','hyb','gel','wasch','antik','scanner','mikro'];
+const LATER={gewebe_g:'Die Gewebeproben wurden schon verarbeitet.',gewebe_t:'Die Gewebeproben wurden schon verarbeitet.',kit:'Die mRNA ist bereits isoliert.',
+rt:'Die Reverse Transkriptase wird nur einmal gebraucht: zum Umschreiben von mRNA in cDNA.',taq:'Die Taq-Polymerase gehört zur PCR – in diesem Schritt wird nichts vervielfältigt.',
+gruen:'Farbstoffe kommen bei der PCR an die cDNA.',rot:'Farbstoffe kommen bei der PCR an die cDNA.',chip:'Der DNA-Chip kommt erst bei der Hybridisierung dazu.',
+hyb:'Der Hybridisierungspuffer wird erst auf dem Chip gebraucht.',wasch:'Gewaschen wird erst nach der Hybridisierung.',scanner:'Gescannt wird ganz am Ende, wenn der Chip gewaschen ist.',
+dntp:'Nucleotide braucht man nur, wenn neue DNA-Stränge gebaut werden.',primer:'Primer braucht man nur, wenn neue DNA-Stränge gebaut werden.'};
+// Sequenzen aus dem Arbeitsblatt
+const H=[['GTCGTAGC',2],['CGCCGTGT',2],['CTGATCGA',4]], T=[['GTCGTAGC',2],['CGCCGTGT',2],['GGCATAGA',4]];
+const comp=s=>s.replace(/./g,c=>({A:'T',T:'A',G:'C',C:'G'})[c]);
+const GENES=[{g:'Gen 1',probe:comp('GGCATAGA'),col:'#ef4444',bind:['GGCATAGA (rot, Tumor)']},
+{g:'Gen 2',probe:comp('CTGATCGA'),col:'#22c55e',bind:['CTGATCGA (grün, gesund)']},
+{g:'Gen 3',probe:comp('GTCGTAGC'),col:'#facc15',bind:['GTCGTAGC (grün, gesund)','GTCGTAGC (rot, Tumor)']},
+{g:'Gen 4',probe:'AAGGGTAC',col:'#0b0f17',bind:[]}];
+const MEAN=['nur im Tumorgewebe aktiv','nur im gesunden Gewebe aktiv','in beiden Geweben aktiv','in keinem der Gewebe aktiv'];
+// ---------- Grafik-Helfer ----------
+function icon(t,c){const s='<svg viewBox="0 0 48 48" aria-hidden="true">';
+ if(t==='tube')return s+`<path d="M18 6h12v4h-2v24a4 4 0 0 1-8 0V10h-2z" fill="#e2e8f0" stroke="#475569" stroke-width="2"/><path d="M20 22h8v12a4 4 0 0 1-8 0z" fill="${c}"/><rect x="16" y="3" width="16" height="5" rx="2" fill="${c}"/></svg>`;
+ if(t==='bottle')return s+`<rect x="19" y="4" width="10" height="7" rx="2" fill="#334155"/><path d="M15 14c0-3 4-3 4-3h10s4 0 4 3v26a3 3 0 0 1-3 3H18a3 3 0 0 1-3-3z" fill="#f1f5f9" stroke="#475569" stroke-width="2"/><rect x="16" y="22" width="16" height="19" rx="2" fill="${c}"/></svg>`;
+ if(t==='box')return s+`<rect x="7" y="13" width="34" height="27" rx="3" fill="${c}"/><path d="M7 13l6-7h22l6 7z" fill="#93c5fd"/><rect x="14" y="21" width="20" height="9" rx="2" fill="#fff"/><text x="24" y="28" font-size="7" text-anchor="middle" font-weight="700" fill="${c}">RNA</text></svg>`;
+ if(t==='dish')return s+`<ellipse cx="24" cy="30" rx="19" ry="9" fill="#e2e8f0" stroke="#475569" stroke-width="2"/><ellipse cx="24" cy="27" rx="12" ry="6" fill="${c}"/><circle cx="20" cy="26" r="2" fill="#fff8"/><circle cx="27" cy="28" r="2" fill="#fff8"/></svg>`;
+ if(t==='chip')return s+`<rect x="5" y="12" width="38" height="24" rx="3" fill="#cbd5e1" stroke="#475569" stroke-width="2"/><rect x="11" y="16" width="26" height="16" rx="2" fill="${c}"/>`+[0,1,2,3].map(i=>[0,1].map(j=>`<circle cx="${15+i*6}" cy="${20.5+j*7}" r="2" fill="${['#ef4444','#22c55e','#facc15','#475569'][(i+j)%4]}"/>`).join('')).join('')+'</svg>';
+ if(t==='device')return s+`<rect x="5" y="14" width="38" height="24" rx="4" fill="${c}"/><rect x="10" y="19" width="20" height="9" rx="2" fill="#0ea5e9"/><circle cx="36" cy="24" r="3" fill="#ef4444"/><rect x="10" y="31" width="28" height="3" fill="#475569"/></svg>`;
+ if(t==='gel')return s+`<rect x="6" y="12" width="36" height="26" rx="3" fill="#e0f2fe" stroke="#475569" stroke-width="2"/>`+[0,1,2,3].map(i=>`<rect x="${10+i*8}" y="${16+(i%2)*6}" width="6" height="2.5" fill="#6366f1"/><rect x="${10+i*8}" y="${26+(i%3)*2}" width="6" height="2.5" fill="#6366f1"/>`).join('')+'</svg>';
+ if(t==='micro')return s+`<path d="M28 6l6 4-10 16-6-4z" fill="${c}"/><rect x="12" y="38" width="28" height="5" rx="2" fill="${c}"/><path d="M34 18c6 6 6 14 0 20" stroke="${c}" stroke-width="4" fill="none"/><rect x="14" y="30" width="16" height="3" fill="#94a3b8"/></svg>`;
+}
+const wave=(x,y,w,col,sw=3)=>{let d=`M${x} ${y}`;for(let i=0;i<w;i+=8)d+=` q4 -5 8 0`;return`<path d="${d}" stroke="${col}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`};
+function strands(list,col,shape){return list.map(([s,n])=>Array.from({length:n},()=>`<div class="seq" style="display:flex;align-items:center;gap:6px">5′-${s}-3′ ${shape==='c'?`<span style="width:13px;height:13px;border-radius:50%;background:${col};display:inline-block"></span>`:`<span style="width:13px;height:13px;background:${col};display:inline-block"></span>`}</div>`).join('')).join('')}
+function chipSVG(state){ // state: 'empty','hyb','wash','scan'
+ const cols=['#ef4444','#22c55e','#facc15','#0b0f17'];let spots='';
+ for(let i=0;i<8;i++)for(let j=0;j<6;j++){const k=(i*7+j*3)%9;const lit=state==='scan'?['#ef4444','#22c55e','#facc15','#0b0f17','#facc15','#22c55e','#ef4444','#0b0f17','#22c55e'][k]:(state==='empty'?'#cbd5e1':'#64748b');
+  spots+=`<circle cx="${36+i*30}" cy="${40+j*30}" r="9" fill="${lit}" ${state==='scan'&&lit!=='#0b0f17'?`style="filter:drop-shadow(0 0 4px ${lit})"`:''}/>`}
+ const big=GENES.map((g,k)=>{const x=302+(k%2)*68,y=58+Math.floor(k/2)*72,c=state==='scan'?g.col:(state==='empty'?'#e2e8f0':'#64748b');
+  return`<circle cx="${x}" cy="${y}" r="30" fill="${c}" stroke="#e2e8f0" stroke-width="2" ${state==='scan'&&k<3?`style="filter:drop-shadow(0 0 10px ${g.col})"`:''}/><text x="${x}" y="${y+5}" text-anchor="middle" font-size="14" font-weight="700" fill="${state==='scan'&&k===2?'#111':'#fff'}">${g.g}</text>`}).join('');
+ let mov='';if(state==='hyb'){for(let k=0;k<22;k++){const c=k%2?'#22c55e':'#ef4444';mov+=`<circle r="4" fill="${c}"><animate attributeName="cx" values="${20+(k*37)%250};${302+(k%2)*68}" dur="${2.5+(k%5)*.4}s" fill="freeze"/><animate attributeName="cy" values="${215};${58+((k>>1)%2)*72}" dur="${2.5+(k%5)*.4}s" fill="freeze"/></circle>`}}
+ return`<svg viewBox="0 0 410 232" role="img" aria-label="DNA-Chip"><rect x="10" y="15" width="260" height="200" rx="10" fill="#0f172a"/>${spots}<rect x="266" y="15" width="138" height="160" rx="10" fill="#0b1220" stroke="#e2e8f0"/>${big}<path d="M262 200 L285 170" stroke="#e2e8f0" stroke-width="2"/><rect x="232" y="188" width="36" height="22" fill="none" stroke="#e2e8f0" stroke-width="2"/>${mov}${state==='scan'?'<rect class="scan" x="10" y="12" width="394" height="4" fill="#38bdf8" opacity=".8"/>':''}<text x="12" y="228" font-size="12" fill="currentColor">Ausschnitt: 4 Spots mit Gen-Sonden (vergrößert rechts)</text></svg>`}
+function pair(cdna,probe,col){const bars=cdna.split('').map((c,i)=>comp(c)===probe[i]?'|':' ').join('');
+ return`<div class="seq" style="line-height:1.25;white-space:pre"><span style="color:${col}">5′-${cdna}-3′</span>\n    ${bars}\n3′-${probe}-5′ <small>(Sonde)</small></div>`}
+function bild1(){return`<svg viewBox="0 0 640 250" role="img" aria-label="Bild 1 farbig: Herstellung markierter cDNA">
+ <text x="10" y="22" font-size="15" font-weight="700" fill="currentColor">gesundes Gewebe</text><text x="10" y="148" font-size="15" font-weight="700" fill="currentColor">Tumorgewebe</text>
+ <ellipse cx="60" cy="70" rx="44" ry="24" fill="#f4a6a6"/><ellipse cx="60" cy="195" rx="44" ry="24" fill="#9b3b3b"/>
+ ${[70,195].map(y=>`<path d="M110 ${y}h30" stroke="currentColor" stroke-width="2" marker-end="url(#a)"/><circle cx="125" cy="${y-22}" r="11" fill="#1f7ae0"/><text x="125" y="${y-18}" font-size="12" text-anchor="middle" fill="#fff" font-weight="700">1</text>`).join('')}
+ ${[48,62,76,90].map(y=>wave(150,y,70,'#8b5cf6')).join('')}${[173,187,201,215].map(y=>wave(150,y,70,'#8b5cf6')).join('')}
+ ${[70,195].map(y=>`<path d="M232 ${y}h30" stroke="currentColor" stroke-width="2" marker-end="url(#a)"/><circle cx="247" cy="${y-22}" r="11" fill="#1f7ae0"/><text x="247" y="${y-18}" font-size="12" text-anchor="middle" fill="#fff" font-weight="700">2</text>`).join('')}
+ ${[48,66,84].map(y=>wave(272,y,70,'#8b5cf6')+wave(272,y+5,70,'#0f766e')).join('')}${[173,191,209].map(y=>wave(272,y,70,'#8b5cf6')+wave(272,y+5,70,'#0f766e')).join('')}
+ ${[70,195].map(y=>`<path d="M354 ${y}h30" stroke="currentColor" stroke-width="2" marker-end="url(#a)"/><circle cx="369" cy="${y-22}" r="11" fill="#1f7ae0"/><text x="369" y="${y-18}" font-size="12" text-anchor="middle" fill="#fff" font-weight="700">3</text>`).join('')}
+ ${[48,66,84].map(y=>wave(394,y,60,'#0f766e')+`<circle cx="460" cy="${y}" r="6" fill="#16a34a"/>`).join('')}${[173,191,209].map(y=>wave(394,y,60,'#0f766e')+`<rect x="454" y="${y-6}" width="12" height="12" fill="#dc2626"/>`).join('')}
+ <text x="480" y="40" font-size="13" fill="#16a34a" font-weight="700">cDNA grün markiert</text><text x="480" y="165" font-size="13" fill="#dc2626" font-weight="700">cDNA rot markiert</text>
+ <text x="480" y="62" font-size="12" fill="currentColor">z. B. GTCGTAGC, CGCCGTGT,</text><text x="480" y="78" font-size="12" fill="currentColor">CTGATCGA</text><text x="480" y="187" font-size="12" fill="currentColor">z. B. GTCGTAGC, CGCCGTGT,</text><text x="480" y="203" font-size="12" fill="currentColor">GGCATAGA</text>
+ <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4 0 8z" fill="currentColor"/></marker></defs>
+ <text x="150" y="245" font-size="12" fill="#8b5cf6" font-weight="700">mRNA</text><text x="272" y="245" font-size="12" fill="#0f766e" font-weight="700">mRNA-cDNA-Hybrid</text><text x="394" y="245" font-size="12" fill="#0f766e" font-weight="700">cDNA einzelsträngig</text></svg>`}
+// ---------- Seiten ----------
+const P=[];const add=(o)=>P.push(o);
+add({k:'info',t:'Start',h:`<div class="two"><div><span class="kind">Einführung</span><h2>Welche Gene sind im Tumor aktiv?</h2>
+<p>Alle Körperzellen enthalten dieselben Gene. Doch nicht jedes Gen ist in jeder Zelle aktiv. Ein aktives Gen wird abgelesen – dabei entsteht <b>mRNA</b>. Bei Tumorzellen sind oft andere Gene aktiv als in gesunden Zellen.</p>
+<p>Mit einem <b>DNA-Chip</b> (DNA-Microarray) kann man für Tausende Gene gleichzeitig vergleichen, ob sie im Tumor oder im gesunden Gewebe abgelesen werden.</p>
+<div class="note">So funktioniert dieses Labor: Lies die Infoseiten. An den <b>Laborstationen</b> nimmst du die passenden Stoffe und Geräte aus dem Regal, legst sie auf die Arbeitsfläche und startest die Reaktion. Zum Schluss wertest du den Chip aus und übst an weiteren Beispielen.</div></div>
+<div class="fig card">${chipSVG('scan')}</div></div>`});
+add({k:'info',t:'Info: mRNA',h:`<div class="two"><div><span class="kind">Info 1</span><h2>Schritt 1: Die mRNA gewinnen</h2>
+<p>Aus dem Gewebe der Patientin oder des Patienten und zum Vergleich aus Gewebe einer gesunden Person wird die <b>mRNA</b> extrahiert.</p>
+<p>Die Menge einer bestimmten mRNA zeigt, wie stark das zugehörige Gen gerade abgelesen (<b>exprimiert</b>) wird.</p>
+<div class="note">Dazu werden die Zellen aufgebrochen und die mRNA von DNA und Proteinen getrennt. RNA ist empfindlich – Enzyme, die RNA abbauen (RNasen), müssen ferngehalten werden.</div></div>
+<div class="card fig">${bild1()}<p style="font-size:14px;margin-top:6px">Schritt ① bis ③ – farbige Fassung von Bild 1 des Arbeitsblatts</p></div></div>`});
+add({k:'lab',t:'Station 1',st:{title:'Station 1: mRNA isolieren',task:'Nimm aus dem Regal alles, was du brauchst, um aus beiden Gewebeproben die mRNA zu gewinnen.',need:['gewebe_g','gewebe_t','kit'],carry:[],run:'Zellen werden aufgeschlossen, mRNA wird isoliert …',
+ res:`<p><b>Ergebnis:</b> Zwei Röhrchen mit mRNA – eines aus gesundem Gewebe, eines aus dem Tumor.</p><svg viewBox="0 0 300 90">${[22,38,54,70].map(y=>wave(10,y,110,'#8b5cf6')).join('')}${[22,38,54,70].map(y=>wave(170,y,110,'#8b5cf6')).join('')}<text x="10" y="88" font-size="12" fill="currentColor">gesund</text><text x="170" y="88" font-size="12" fill="currentColor">Tumor</text></svg>`}});
+add({k:'info',t:'Info: cDNA',h:`<div class="two"><div><span class="kind">Info 2</span><h2>Schritt 2: Aus mRNA wird cDNA</h2>
+<p>Mit dem Enzym <b>reverse Transkriptase</b> wird zu jeder mRNA eine <b>komplementäre DNA (cDNA)</b> gebildet. Dazu braucht das Enzym Nucleotide und einen Primer als Startstück.</p>
+<p>Warum der Umweg? DNA ist viel stabiler als RNA, und nur DNA kann mit der PCR vervielfältigt werden.</p>
+<div class="note">Reverse Transkriptase stammt ursprünglich aus Retroviren (z. B. HIV): Diese Viren schreiben ihre RNA in DNA um.</div></div>
+<div class="card fig"><svg viewBox="0 0 320 120">${wave(20,40,260,'#8b5cf6',4)}<text x="20" y="25" font-size="13" fill="#8b5cf6" font-weight="700">mRNA</text>${wave(20,70,260,'#0f766e',4)}<text x="20" y="100" font-size="13" fill="#0f766e" font-weight="700">cDNA (komplementär)</text>${Array.from({length:12},(_,i)=>`<path d="M${30+i*21} 45v20" stroke="#94a3b8" stroke-width="2"/>`).join('')}</svg></div></div>`});
+add({k:'lab',t:'Station 2',st:{title:'Station 2: Reverse Transkription',task:'Schreibe die mRNA beider Proben in cDNA um. Was brauchst du dafür?',need:['rt','dntp','primer'],carry:['mRNA gesund','mRNA Tumor'],run:'Reverse Transkriptase baut cDNA auf …',
+ res:`<p><b>Ergebnis:</b> mRNA-cDNA-Hybride. Die mRNA wird anschließend abgebaut – zurück bleibt einzelsträngige cDNA.</p><svg viewBox="0 0 300 70">${[18,40].map(y=>wave(10,y,110,'#8b5cf6')+wave(10,y+6,110,'#0f766e')).join('')}${[18,40].map(y=>wave(170,y,110,'#8b5cf6')+wave(170,y+6,110,'#0f766e')).join('')}</svg>`}});
+add({k:'info',t:'Info: Markierung',h:`<div class="two"><div><span class="kind">Info 3</span><h2>Schritt 3: Vervielfältigen und einfärben</h2>
+<p>Die cDNA wird mit der <b>PCR</b> vervielfältigt. Dabei werden Nucleotide mit einem <b>Fluoreszenzfarbstoff</b> eingebaut:</p>
+<p><span class="g">● grün</span> für die cDNA aus <b>gesundem Gewebe</b>, <span class="r">■ rot</span> für die cDNA aus dem <b>Tumorgewebe</b>.</p>
+<div class="note">Für die PCR brauchst du eine hitzestabile DNA-Polymerase (Taq-Polymerase), Nucleotide und Primer – und hier zusätzlich die beiden Farbstoffe.</div></div>
+<div class="card"><h3 style="margin-top:0">So sehen die Proben danach aus</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><b class="g">gesund</b>${strands(H,'#16a34a','c')}</div><div><b class="r">Tumor</b>${strands(T,'#dc2626','s')}</div></div></div></div>`});
+add({k:'lab',t:'Station 3',st:{title:'Station 3: PCR und Fluoreszenzmarkierung',task:'Vervielfältige die cDNA beider Proben und markiere sie mit Farbstoffen.',need:['taq','dntp','primer','gruen','rot'],carry:['cDNA gesund','cDNA Tumor'],run:'PCR läuft: 30 Zyklen Erhitzen – Abkühlen – Verlängern …',assign:true,
+ res:`<p><b>Ergebnis:</b> Viele Kopien einzelsträngiger, farbig markierter cDNA.</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><b class="g">gesund</b>${strands(H,'#16a34a','c')}</div><div><b class="r">Tumor</b>${strands(T,'#dc2626','s')}</div></div>`}});
+add({k:'info',t:'Info: Chip',h:`<div class="two"><div><span class="kind">Info 4</span><h2>Schritt 4: Der DNA-Chip</h2>
+<p>Ein DNA-Chip ist ein Glasträger mit Tausenden winziger Vertiefungen (Spots). In jedem Spot sitzen viele Kopien einer kurzen <b>Gen-Sonde</b> – eines Oligonucleotids, das genau einem Gen zugeordnet ist.</p>
+<p>Beide markierten cDNA-Proben kommen <b>gemeinsam</b> auf den Chip. Ist eine cDNA zu einer Sonde komplementär, lagert sie sich an: <b>Hybridisierung</b>.</p>
+<h3>Die vier Sonden in unserem Ausschnitt</h3>${GENES.map(g=>`<div class="seq">${g.g}: 3′-${g.probe}-5′</div>`).join('')}</div>
+<div class="card fig">${chipSVG('empty')}<p style="font-size:14px">Farbige Fassung von Bild 2: Gen-Sonden auf dem DNA-Chip</p></div></div>`});
+add({k:'lab',t:'Station 4',st:{title:'Station 4: Hybridisierung',task:'Bringe die beiden markierten cDNA-Proben gemeinsam auf den Chip, damit sie an passende Sonden binden können.',need:['chip','hyb'],carry:['cDNA grün markiert','cDNA rot markiert'],run:'Inkubation über Nacht bei 42 °C (im Zeitraffer) …',dur:6000,anim:'hyb',
+ res:`<p><b>Ergebnis:</b> Komplementäre cDNA-Moleküle haben an die Sonden gebunden. Auf dem Chip liegen aber auch noch viele ungebundene Moleküle.</p>`}});
+add({k:'info',t:'Info: Waschen',h:`<div class="two"><div><span class="kind">Info 5</span><h2>Schritt 5: Waschen und Scannen</h2>
+<p>Nicht gebundene cDNA-Moleküle werden <b>abgewaschen</b>. Sonst würde der ganze Chip leuchten.</p>
+<p>Danach tastet ein <b>Laserscanner</b> den Chip ab. Die Farbstoffe leuchten auf – das Ergebnis wird als farbig fluoreszierende Punkte sichtbar.</p>
+<div class="note"><b>Farben lesen:</b> rotes und grünes Licht ergeben zusammen <span class="y">gelbes</span> Licht. Kein Licht ergibt ein schwarzes Feld.</div></div>
+<div class="card"><div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">${[['#ef4444','nur rot'],['#22c55e','nur grün'],['#facc15','rot + grün'],['#0b0f17','keine cDNA']].map(([c,t])=>`<div style="text-align:center"><div class="dot" style="background:${c};color:${c};margin:auto"></div><small>${t}</small></div>`).join('')}</div></div></div>`});
+add({k:'lab',t:'Station 5',st:{title:'Station 5: Waschen und Auslesen',task:'Entferne alle ungebundenen Moleküle und mache die Fluoreszenz sichtbar.',need:['wasch','scanner'],carry:['DNA-Chip nach Hybridisierung'],run:'Waschen … Laserscan läuft …',dur:5000,anim:'scan',
+ res:`<p><b>Ergebnis:</b> Der Chip leuchtet! Rechts siehst du die vier vergrößerten Spots.</p><div class="fig">${chipSVG('scan')}</div>`}});
+add({k:'eval',t:'Auswertung',h:`<span class="kind">Auswertung</span><h2>Was verraten die Farben?</h2><div class="two"><div id="spots"></div><div class="card"><h3 style="margin-top:0">Was ist an den Spots gebunden?</h3>${GENES.map(g=>`<p><b>${g.g}</b></p>${g.bind.length?g.bind.map(b=>pair(b.slice(0,8),g.probe,b.includes('rot')?'#dc2626':'#16a34a')).join(''):'<p class="seq" style="color:var(--mut)">keine passende cDNA</p>'}`).join('')}
+<div class="note">Die cDNA <span class="seq">CGCCGTGT</span> kam in beiden Proben vor, hatte auf diesem Ausschnitt aber keine passende Sonde – sie wurde abgewaschen.</div></div></div>`,
+ init(){const box=document.getElementById('spots');const ans=[0,1,2,3];box.innerHTML=GENES.map((g,k)=>`<div class="spotq"><div class="dot" style="background:${g.col};color:${g.col}"></div><div><b>${g.g}</b> ist …<div class="choice" data-k="${k}">${MEAN.map((m,i)=>`<button data-i="${i}">${m}</button>`).join('')}</div><div class="msg"></div></div></div>`).join('');
+  box.onclick=e=>{const b=e.target.closest('button');if(!b)return;const w=b.parentElement,k=+w.dataset.k,i=+b.dataset.i;w.querySelectorAll('button').forEach(x=>x.className='');
+   const m=w.nextElementSibling;if(i===ans[k]){b.className='right';m.innerHTML=['✔ Rot: Nur die cDNA aus dem Tumor hat gebunden.','✔ Grün: Nur die cDNA aus gesundem Gewebe hat gebunden.','✔ Gelb: Rot und Grün haben gebunden – das Gen ist in beiden Geweben aktiv.','✔ Schwarz: Keine cDNA hat gebunden.'][k];solvedEval.add(k)}else{b.className='wrong';m.textContent='✘ Schau dir die Farbe noch einmal an: Welche Farbstoffe leuchten hier?'}
+   if(solvedEval.size===4)unlock()}},need:()=>solvedEval.size===4});
+add({k:'info',t:'Bedeutung',h:`<div class="two"><div><span class="kind">Info 6</span><h2>Was bringt das der Medizin?</h2>
+<p>Ein echter DNA-Chip prüft nicht vier, sondern Tausende Gene gleichzeitig. So entsteht ein <b>Expressionsprofil</b> – eine Art Fingerabdruck der Genaktivität.</p>
+<p>Gene, die nur im Tumor aktiv sind (rot), können Hinweise auf <b>tumorauslösende Gene</b> geben. Expressionsprofile helfen, Tumorarten zu unterscheiden und eine passende Therapie auszuwählen.</p>
+<div class="note">In den folgenden Beispielen wendest du dein Wissen an. Die Proben sind schon vorbereitet – du startest direkt den Laserscan.</div></div>
+<div class="card"><table><tr><th>Farbe</th><th>Bedeutung</th></tr><tr><td><span class="r">rot</span></td><td>Gen nur im Tumor exprimiert</td></tr><tr><td><span class="g">grün</span></td><td>Gen nur im gesunden Gewebe exprimiert</td></tr><tr><td><span class="y">gelb</span></td><td>in beiden exprimiert</td></tr><tr><td><b>schwarz</b></td><td>in keinem exprimiert</td></tr></table></div></div>`});
+// ---- Anwendungsbeispiele ----
+const EX=[
+{t:'Beispiel 2',title:'Brustkrebs: Passt die Antikörper-Therapie?',
+ intro:`<p>Bei einer Patientin wurde Brustkrebs festgestellt. Für die Therapie ist wichtig, welche Gene im Tumor aktiv sind:</p><ul><li><b>HER2</b> – Gen für einen Wachstumsfaktor-Rezeptor. Wird es im Tumor besonders stark abgelesen, wachsen die Zellen schneller. Dann hilft der Antikörper <b>Trastuzumab</b>, der HER2 blockiert.</li><li><b>ESR1</b> – Gen für den Östrogen-Rezeptor. Ist es aktiv, kann eine <b>Antihormontherapie</b> helfen.</li><li><b>ACTB</b> – Aktin-Gen, in fast allen Zellen aktiv (Kontrolle).</li><li><b>MYH7</b> – Gen für ein Muskelprotein des Herzens.</li></ul><p>Markierung wie im Labor: <span class="g">grün</span> = gesundes Brustgewebe, <span class="r">rot</span> = Tumor.</p>`,
+ genes:[['HER2','#ef4444',0],['ESR1','#facc15',2],['ACTB','#facc15',2],['MYH7','#0b0f17',3]],
+ q:'Welche Therapie ist nach dem Chip-Ergebnis sinnvoll?',opts:['Nur Trastuzumab','Nur Antihormontherapie','Trastuzumab und Antihormontherapie kommen infrage','Keine der beiden Therapien'],a:2,
+ fb:'HER2 leuchtet rot: Es wird nur im Tumor exprimiert → Trastuzumab kommt infrage. ESR1 leuchtet gelb: Der Östrogen-Rezeptor wird auch im Tumor gebildet → eine Antihormontherapie kann ebenfalls helfen. ACTB (gelb) zeigt, dass der Versuch funktioniert hat; MYH7 (schwarz) wird in Brustgewebe nicht abgelesen.'},
+{t:'Beispiel 3',title:'Hitzestress bei Weizen',
+ intro:`<p>Forschende untersuchen, wie Weizenpflanzen auf eine Hitzewelle reagieren. Sie vergleichen Blätter von Pflanzen bei 22 °C (<span class="g">grün markiert</span>) mit Blättern von Pflanzen nach drei Stunden bei 40 °C (<span class="r">rot markiert</span>).</p><ul><li><b>HSP70</b> – Gen für ein Hitzeschockprotein, das andere Proteine vor dem Verklumpen schützt.</li><li><b>rbcS</b> – Gen für einen Teil des Enzyms Rubisco (Fotosynthese, Calvin-Zyklus).</li><li><b>ACT</b> – Aktin-Gen (Kontrolle).</li><li><b>Gen für ein Speicherprotein im Samen</b> (Gliadin).</li></ul>`,
+ genes:[['HSP70','#ef4444',0],['rbcS','#22c55e',1],['ACT','#facc15',2],['Gliadin','#0b0f17',3]],
+ q:'Welche Aussage passt zum Ergebnis?',opts:['Bei Hitze wird die Fotosynthese verstärkt.','Bei Hitze werden Schutzproteine gebildet, die Bildung von Rubisco wird heruntergefahren.','Hitze verändert die Genexpression nicht.','Bei Hitze werden in den Blättern Speicherproteine gebildet.'],a:1,
+ fb:'HSP70 leuchtet rot: Das Hitzeschockprotein wird nur bei 40 °C gebildet. rbcS leuchtet grün: Dieses Fotosynthese-Gen wird bei Hitze kaum noch abgelesen. Das Kontrollgen ACT ist in beiden Proben aktiv (gelb); das Speicherprotein-Gen ist in Blättern gar nicht aktiv (schwarz).'}];
+const solvedEx={};
+EX.forEach((x,ei)=>{add({k:'ex',t:x.t,h:`<span class="kind ex">Anwendung · ${x.t}</span><h2>${x.title}</h2><div class="two"><div>${x.intro}</div><div class="card"><div id="exchip${ei}"></div><button class="btn" id="exscan${ei}">Laserscan starten</button><div id="exq${ei}"></div></div></div>`,
+ init(){const c=document.getElementById('exchip'+ei),bt=document.getElementById('exscan'+ei),q=document.getElementById('exq'+ei);
+  const draw=lit=>c.innerHTML=`<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;background:#0f172a;padding:14px;border-radius:12px;margin-bottom:10px">${x.genes.map(([n,col])=>`<div style="text-align:center;color:#fff;font-size:14px;font-weight:700"><div class="dot" style="margin:auto;width:100%;max-width:70px;height:auto;aspect-ratio:1;background:${lit?col:'#475569'};color:${lit?col:'transparent'}"></div>${n}</div>`).join('')}</div>`;
+  draw(solvedEx[ei]);if(solvedEx[ei]){bt.remove();ask()}
+  bt.onclick=()=>{bt.disabled=true;bt.textContent='Scan läuft …';setTimeout(()=>{draw(true);bt.remove();ask()},1800)};
+  function ask(){q.innerHTML=`<h3>1. Ordne jedem Gen eine Bedeutung zu</h3>${x.genes.map(([n,col,a],k)=>`<p style="margin:8px 0 0"><b>${n}</b></p><div class="choice" data-a="${a}">${MEAN.map((m,i)=>`<button data-i="${i}">${m}</button>`).join('')}</div>`).join('')}<h3>2. ${x.q}</h3><div class="choice" data-a="${x.a}" data-final="1">${x.opts.map((m,i)=>`<button data-i="${i}">${m}</button>`).join('')}</div><div class="msg"></div>`;
+   q.onclick=e=>{const b=e.target.closest('button');if(!b)return;const w=b.parentElement;w.querySelectorAll('button').forEach(z=>z.className='');const ok=+b.dataset.i===+w.dataset.a;b.className=ok?'right':'wrong';w.dataset.ok=ok?1:0;
+    if(w.dataset.final){q.querySelector('.msg').innerHTML=ok?`<div class="fb ok">✔ ${x.fb}</div>`:'<div class="fb bad">✘ Noch nicht. Überlege, was die Farben rot und gelb für die beiden Therapie- bzw. Schutzgene bedeuten.</div>'}
+    if([...q.querySelectorAll('.choice')].every(z=>z.dataset.ok==='1')){solvedEx[ei]=1;unlock()}}}},need:()=>!!solvedEx[ei]})});
+// ---- Arbeitsblatt-Aufgaben 1:1 ----
+add({k:'ab',t:'Aufgaben AB',h:`<span class="kind ab">Arbeitsblatt</span><h2>DNA-Microarrays in der Tumordiagnostik</h2>
+<div class="two"><div><p>DNA-Microarrays werden in der medizinischen Diagnostik z. B. für den Nachweis von tumorauslösenden Genen verwendet. Dazu wird aus Geweben einer Patientin oder eines Patienten sowie zum Vergleich aus Gewebe einer gesunden Person mRNA extrahiert. Daraus wird mit reverser Transkriptase cDNA (komplementäre DNA) gebildet und mittels PCR vervielfältigt. Je nachdem, ob die Proben von gesundem Gewebe oder Tumorgewebe stammen, werden die einzelsträngigen cDNA-Moleküle dabei mit einem grün bzw. mit einem rot fluoreszierenden Farbstoff markiert [B 1]. Diese Moleküle werden gemeinsam auf einen Glasträger aufgebracht, auf dem sich in festgelegter Anordnung in kleinen Vertiefungen kurze Gen-Sonden befinden. Dies sind Tausende von Kopien bestimmter Oligonucleotide, die jeweils einem Gen zugeordnet werden können [B 2]. Nach Hybridisierung der komplementären Moleküle und Abwaschen nicht gebundener Fragmente wird das Ergebnis als farbig fluoreszierende Punkte auf dem DNA-Chip sichtbar.</p>
+<ol><li>Beschreiben Sie kurz die Vorgänge ① bis ④ in Bild 1 und Bild 2 zur Untersuchung der Genexpression.</li><li>Ermitteln Sie in Bild 2 die Hybridisierungen, die mit den Nucleotidsträngen aus Bild 1 möglich sind.</li><li>Werten Sie die Fluoreszenzergebnisse aus. (Hinweis: rotes und grünes Licht ergeben zusammen gelbes Licht, kein Licht ergibt ein schwarzes Feld).</li></ol>
+<details><summary>Lösungen</summary><p>1 ① Extraktion von mRNA aus gesundem Gewebe und Tumorgewebe. ② Mithilfe des Enzyms reverse Transkriptase wird cDNA komplementär zur RNA gebildet. ③ Die cDNA wird mit der PCR vervielfältigt und mit Fluoreszenzfarbstoffen markiert. ④ Die markierten cDNA-Moleküle hybridisieren an Oligonucleotide.</p><p>2 siehe Auswertung (Hybridisierungsergebnis im DNA-Microarray)</p><p>3 Gen 1 (rot) Exprimierung im Tumor; Gen 2 (grün) Exprimierung in gesundem Gewebe; Gen 3 (gelb) Exprimierung im Tumor und gesundem Gewebe; Gen 4 (schwarz) Exprimierung in keinem Gewebe</p></details></div>
+<div><div class="card fig"><b>Bild 1</b> Herstellung von markierten c-DNA-Molekülen (Fluoreszenzfarbstoffe: <span class="g">● grün</span>, <span class="r">■ rot</span>)${bild1()}</div><div class="card fig" style="margin-top:12px"><b>Bild 2</b> Gen-Sonden auf DNA-Chip für die Hybridisierung mit markierten cDNA-Molekülen<div style="font-size:15px;margin:6px 0">④ grün und rot markierte cDNA → DNA-Chip</div>${chipSVG('empty')}${GENES.map(g=>`<div class="seq">${g.g}: 3′-${g.probe}-5′</div>`).join('')}</div></div></div>`});
+// ---- Zusatzaufgabe Leukämie ----
+const TAB=[['A1','AML','B1','ALL','C1','AML/ALL','D1','--','E1','AML'],['A2','ALL','B2','AML','C2','ALL','D2','AML','E2','AML'],['A3','ALL','B3','ALL','C3','AML','D3','AML','E3','ALL'],['A4','AML','B4','--','C4','ALL','D4','--','E4','ALL'],['A5','ALL','B5','ALL','C5','AML','D5','AML','E5','AML/ALL']];
+const PX=['A2','A3','B1','B3','C1','C2','C4','E3'],PY=['A1','B2','C3','D2','D5','E1'];
+const arr=(on)=>`<div class="arr"><div class="h"></div>${'ABCDE'.split('').map(c=>`<div class="h">Gen ${c}</div>`).join('')}${[1,2,3,4,5].map(r=>`<div class="h">${r}</div>${'ABCDE'.split('').map(c=>`<div class="${on.includes(c+r)?'on':''}">${c+r}</div>`).join('')}`).join('')}</div>`;
+let leuk=0;
+add({k:'ab',t:'Zusatz',h:`<span class="kind ab">Zusatzaufgabe vom Arbeitsblatt</span><h2>Identifizierung einer Leukämie-Erkrankung mittels DNA-Microarray</h2>
+<p>Man unterscheidet zwischen Akuter Lymphatischer Leukämie (ALL) und Akuter Myeloischer Leukämie (AML). Ein DNA-Microarray mit dem Expressionsmuster von 25 Genen (A1 bis E5) aus den funktionsuntüchtigen Vorläuferzellen der Weißen Blutzellen, den sogenannten Leukämiezellen, zeigt, dass diese 25 Gene bei den bei ALL und AML unterschiedlich exprimiert werden [B 2]. Für die Diagnosestellung mit einem Microarray wird bei zwei an Leukämie erkrankten Personen aus der mRNA cDNA hergestellt, mit einem Fluoreszenzfarbstoff markiert und mit den Gensonden hybridisiert [B 3].</p>
+<div style="display:grid;gap:14px"><div class="card"><b>Bild 2</b> Unterscheidung zwischen zwei Leukämieformen (ALL, AML)<div class="scroll"><table><tr>${['Gen A','Expression in','Gen B','Expression in','Gen C','Expression in','Gen D','Expression in','Gen E','Expression in'].map(x=>`<th>${x}</th>`).join('')}</tr>${TAB.map(r=>`<tr>${r.map(x=>`<td style="${x==='ALL'?'background:#dbeafe;color:#1e3a8a':x==='AML'?'background:#fce7f3;color:#831843':''}">${x}</td>`).join('')}</tr>`).join('')}</table></div></div>
+<div class="card"><b>Bild 3</b> Microarrays von zwei an Leukämie erkrankten Personen (links: Person X; rechts Person Y)<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:8px"><div><b>Person X</b>${arr(PX)}</div><div><b>Person Y</b>${arr(PY)}</div></div><p style="font-size:13px;color:var(--mut);margin-top:6px">Leuchtmuster passend zur Lösung des Arbeitsblatts nachgezeichnet.</p></div></div>
+<ol><li>Erklären Sie die Diagnosen für die Personen X und Y mithilfe der dargestellten Ergebnisse [B 2 und 3].</li></ol>
+<div class="card"><p><b>Deine Diagnose:</b></p><p>Person X:</p><div class="choice" data-p="X"><button>ALL</button><button>AML</button></div><p>Person Y:</p><div class="choice" data-p="Y"><button>ALL</button><button>AML</button></div><div id="lmsg"></div></div>
+<details><summary>Lösung</summary><p>Person X ALL: Acht der zwölf bei dieser Erkrankung exprimierten Gene sind in dem Microarray zu finden. Person Y AML: Sechs der zwölf bei dieser Erkrankung exprimierten Gene sind zu finden</p></details>`,
+ init(){document.querySelectorAll('[data-p]').forEach(w=>w.onclick=e=>{const b=e.target.closest('button');if(!b)return;w.querySelectorAll('button').forEach(z=>z.className='');const ok=(w.dataset.p==='X'&&b.textContent==='ALL')||(w.dataset.p==='Y'&&b.textContent==='AML');b.className=ok?'right':'wrong';w.dataset.ok=ok?1:0;
+  const m=document.getElementById('lmsg');m.innerHTML=ok?`<div class="fb ok">✔ ${w.dataset.p==='X'?'Bei Person X leuchten nur Gene, die bei ALL exprimiert werden (z. B. A2, A3, B1, B3).':'Bei Person Y leuchten nur Gene, die bei AML exprimiert werden (z. B. A1, B2, C3, D2).'}</div>`:'<div class="fb bad">✘ Vergleiche die leuchtenden Felder mit der Tabelle: Bei welcher Leukämieform werden diese Gene exprimiert?</div>'})}});
+add({k:'info',t:'Fertig',h:`<span class="kind">Geschafft</span><h2>Du hast den DNA-Chip-Versuch durchgeführt!</h2><div class="two"><div><h3>Die Schritte im Überblick</h3><ol><li>mRNA aus gesundem Gewebe und Tumorgewebe isolieren</li><li>mit reverser Transkriptase cDNA bilden</li><li>cDNA mit PCR vervielfältigen und grün bzw. rot markieren</li><li>gemeinsam auf den DNA-Chip geben – Hybridisierung mit den Gen-Sonden</li><li>ungebundene cDNA abwaschen, mit dem Laserscanner auslesen und auswerten</li></ol></div><div class="fig card">${chipSVG('scan')}</div></div>`});
+// ---------- Labor-Logik ----------
+const done=new Set(),solvedEval=new Set();let cur=0,maxSeen=0,sel=new Set();
+const V=document.getElementById('view'),NX=document.getElementById('next'),PV=document.getElementById('prev'),D=document.getElementById('dots');
+function unlock(){done.add(cur);NX.disabled=false;dots()}
+function dots(){D.innerHTML=P.map((p,i)=>`<button title="${p.t}" class="${i===cur?'cur':(i<=maxSeen?'done':'')}" ${i>maxSeen?'disabled':''} data-i="${i}">${i+1}</button>`).join('')}
+D.onclick=e=>{const b=e.target.closest('button');if(b&&!b.disabled)go(+b.dataset.i)};
+function go(i){cur=i;maxSeen=Math.max(maxSeen,i);const p=P[i];sel=new Set();
+ if(p.k==='lab')renderLab(p.st);else{V.innerHTML=p.h;p.init&&p.init()}
+ const blocked=(p.k==='lab'&&!done.has(i))||(p.need&&!p.need());NX.disabled=blocked||i===P.length-1;PV.disabled=i===0;
+ NX.textContent=i===P.length-1?'Ende':'Weiter →';dots();window.scrollTo({top:0,behavior:'smooth'})}
+NX.onclick=()=>go(cur+1);PV.onclick=()=>go(cur-1);
+function renderLab(st){
+ V.innerHTML=`<span class="kind lab">Laborstation</span><h2>${st.title}</h2><div class="lab" id="labgrid"><div class="shelf"><h3>Regal – tippe an, was du brauchst</h3>${[0,1,2].map(r=>`<div class="board">${ORDER.slice(r*7,r*7+7).map(id=>`<button class="item" data-id="${id}" title="${ITEMS[id].d}">${icon(ITEMS[id].ic,ITEMS[id].c)}<span>${ITEMS[id].n}</span></button>`).join('')}</div>`).join('')}</div>
+ <div class="bench"><div class="task"><b>Auftrag:</b> ${st.task}</div>${st.carry.length?`<div class="carry">Aus dem vorigen Schritt: ${st.carry.map(c=>`<span>${c}</span>`).join('')}</div>`:''}<b>Arbeitsfläche</b> <small style="color:var(--mut)">(nochmal tippen = zurück ins Regal)</small><div class="onbench" id="ob"></div><div id="desc" style="font-size:14px;color:var(--mut);margin-top:6px"></div>
+ <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn" id="go">Reaktion starten</button><button class="btn ghost" id="tip">Tipp</button></div><div id="fb"></div></div></div>`;
+ const ob=document.getElementById('ob'),fb=document.getElementById('fb');
+ const paint=()=>{ob.innerHTML=[...sel].map(id=>`<button class="item" data-id="${id}">${icon(ITEMS[id].ic,ITEMS[id].c)}<span>${ITEMS[id].n}</span></button>`).join('')||'<span style="color:var(--mut)">Noch leer.</span>';
+  V.querySelectorAll('.shelf .item').forEach(b=>b.classList.toggle('sel',sel.has(b.dataset.id)));
+  document.getElementById('desc').innerHTML=[...sel].map(id=>`<div>• <b>${ITEMS[id].n}:</b> ${ITEMS[id].d}</div>`).join('')};
+ document.getElementById('labgrid').onclick=e=>{const b=e.target.closest('.item');if(!b)return;const id=b.dataset.id;sel.has(id)?sel.delete(id):sel.add(id);fb.innerHTML='';paint()};
+ paint();
+ if(done.has(cur)){showResult(st,true);return}
+ document.getElementById('tip').onclick=()=>{fb.innerHTML=`<div class="fb ok">Du brauchst ${st.need.length} Dinge aus dem Regal. Lies die Infoseite davor noch einmal: Welche Stoffe und Geräte werden dort genannt?</div>`};
+ document.getElementById('go').onclick=()=>{
+  const wrong=[...sel].filter(id=>!st.need.includes(id)),miss=st.need.filter(id=>!sel.has(id));
+  if(wrong.length){fb.innerHTML=`<div class="fb bad">${wrong.map(id=>`✘ <b>${ITEMS[id].n}</b>: ${ITEMS[id].why||LATER[id]||'Wird in diesem Schritt nicht gebraucht.'}`).join('<br>')}</div>`;return}
+  if(miss.length){fb.innerHTML=`<div class="fb bad">Es fehlt noch etwas: ${miss.length===1?'ein Bestandteil':miss.length+' Bestandteile'}. Ohne alle Zutaten läuft die Reaktion nicht.</div>`;return}
+  if(st.assign){assign(st);return}
+  run(st)}}
+function assign(st){const fb=document.getElementById('fb');
+ fb.innerHTML=`<div class="fb ok"><b>Fast!</b> Welche Probe bekommt welchen Farbstoff? (Festlegung wie auf dem Arbeitsblatt)<p style="margin:8px 0 0">cDNA aus <b>gesundem Gewebe</b>:</p><div class="choice" data-s="g"><button data-c="g">grün</button><button data-c="r">rot</button></div><p style="margin:4px 0 0">cDNA aus <b>Tumorgewebe</b>:</p><div class="choice" data-s="t"><button data-c="g">grün</button><button data-c="r">rot</button></div><div id="am"></div></div>`;
+ const pick={};fb.onclick=e=>{const b=e.target.closest('button');if(!b)return;const w=b.parentElement;w.querySelectorAll('button').forEach(z=>z.className='');b.className='right';pick[w.dataset.s]=b.dataset.c;
+  if(pick.g&&pick.t){if(pick.g==='g'&&pick.t==='r'){fb.onclick=null;run(st)}else document.getElementById('am').innerHTML='<p class="r">Nicht ganz: Laut Arbeitsblatt wird gesundes Gewebe grün und Tumorgewebe rot markiert. Wichtig ist vor allem: Beide Proben brauchen verschiedene Farben!</p>'}}}
+function run(st){const b=document.querySelector('.bench');const dur=st.dur||4000;
+ b.innerHTML=`<div class="run"><div class="${st.anim?'':'shake'}" style="display:inline-block">${st.anim?'':icon('tube','#1f7ae0').replace('<svg','<svg width="90" height="90"')}</div>${st.anim?`<div class="fig">${chipSVG(st.anim)}</div>`:''}<p><b>${st.run}</b></p><div class="bar"><i id="pb"></i></div></div>`;
+ const pb=document.getElementById('pb');const t0=performance.now();
+ const tick=t=>{const f=Math.min(1,(t-t0)/dur);pb.style.width=f*100+'%';if(f<1)requestAnimationFrame(tick);else{done.add(cur);showResult(st)}};requestAnimationFrame(tick)}
+function showResult(st,again){const b=document.querySelector('.bench');
+ b.innerHTML=`<div class="task"><b>Auftrag:</b> ${st.task}</div><div class="fb ok">✔ Richtig ausgewählt: ${st.need.map(id=>ITEMS[id].n).join(', ')}.</div>${st.res}`;
+ if(st.anim==='hyb')b.insertAdjacentHTML('beforeend',`<div class="fig">${chipSVG('wash')}</div>`);
+ NX.disabled=false;dots()}
+go(0);
+}
+</script>
+</body>
+</html>
