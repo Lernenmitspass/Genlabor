@@ -247,10 +247,10 @@ EX.forEach((x,ei)=>{add({k:'ex',t:x.t,h:`<span class="kind ex">Anwendung · ${x.
 const CC={r:'#ef4444',g:'#22c55e',y:'#facc15',k:'#0b0f17'};
 const U1G=['LCT','SI','ACTB','INS'];
 const U1M={A:['g','g','y','k'],B:['g','y','y','k'],C:['y','y','y','k'],D:['y','g','y','k']};
-const U1P=[{n:'Patient 1',t:'Nach einem Glas Milch: Bauchschmerzen, Blähungen und Durchfall. Haushaltszucker verträgt er gut.',a:'B'},
-{n:'Patientin 2',t:'Keine Beschwerden – weder nach Milch noch nach Süßigkeiten. Sie dient als Kontrolle für den Versuch.',a:'C'},
-{n:'Patient 3',t:'Nach Süßigkeiten mit Haushaltszucker: starke Blähungen und Durchfall. Milchprodukte verträgt er.',a:'D'},
-{n:'Patientin 4',t:'Sowohl nach Milch als auch nach Haushaltszucker: Bauchschmerzen und Durchfall.',a:'A'}];
+const U1P=[{n:'Herr Pampelmuse',t:'Nach einem Glas Milch: Bauchschmerzen, Blähungen und Durchfall. Haushaltszucker verträgt er gut.',a:'B'},
+{n:'Frau Orange',t:'Keine Beschwerden – weder nach Milch noch nach Süßigkeiten. Sie dient als Kontrolle für den Versuch.',a:'C'},
+{n:'Herr Tomate',t:'Nach Süßigkeiten mit Haushaltszucker: starke Blähungen und Durchfall. Milchprodukte verträgt er.',a:'D'},
+{n:'Frau Gurke',t:'Sowohl nach Milch als auch nach Haushaltszucker: Bauchschmerzen und Durchfall.',a:'A'}];
 const miniChip=(m,genes)=>`<div style="display:grid;grid-template-columns:repeat(${genes.length},minmax(0,1fr));gap:6px;background:#0f172a;padding:10px;border-radius:10px">${m.map((c,i)=>`<div style="text-align:center;color:#fff;font-size:12px;font-weight:700"><div class="dot" style="margin:auto;width:100%;max-width:46px;height:auto;aspect-ratio:1;background:${CC[c]};color:${CC[c]}"></div>${genes[i]}</div>`).join('')}</div>`;
 const u1ok={};
 add({k:'ex',t:'Übung 1',h:`<span class="kind ex">Übung 1 · vom Befund zum Leuchtmuster</span><h2>Welches Leuchtmuster gehört zu welchen Beschwerden?</h2>
@@ -263,7 +263,7 @@ add({k:'ex',t:'Übung 1',h:`<span class="kind ex">Übung 1 · vom Befund zum Leu
 <h3>Ordne jeder Person ihr Leuchtmuster zu</h3><div id="u1"></div>`,
  init(){const box=document.getElementById('u1');box.innerHTML=U1P.map((p,i)=>`<div class="spotq" style="grid-template-columns:minmax(0,1fr)"><div><b>${p.n}:</b> ${p.t}<div class="choice" data-i="${i}">${Object.keys(U1M).map(k=>`<button class="${u1ok[i]&&k===p.a?'right':''}">Muster ${k}</button>`).join('')}</div><div class="msg"></div></div></div>`).join('');
   box.onclick=e=>{const b=e.target.closest('button');if(!b)return;const w=b.parentElement,i=+w.dataset.i,k=b.textContent.slice(-1),p=U1P[i];w.querySelectorAll('button').forEach(z=>z.className='');const m=w.nextElementSibling;
-   if(k===p.a){b.className='right';u1ok[i]=1;m.innerHTML='✔ '+['LCT leuchtet grün: Laktase wird nur bei der Vergleichsperson gebildet, nicht beim Patienten. SI ist gelb – beide bilden Saccharase.','Alle Verdauungsgene gelb: Beide Personen bilden Laktase und Saccharase. INS ist schwarz, weil Darmzellen kein Insulin bilden.','SI leuchtet grün: Saccharase-Isomaltase fehlt beim Patienten. LCT ist gelb – Laktase ist vorhanden.','LCT und SI leuchten grün: Beide Enzyme fehlen bei der Patientin.'][i]}
+   if(k===p.a){b.className='right';u1ok[i]=1;m.innerHTML='✔ '+['LCT leuchtet grün: Laktase wird nur bei der Vergleichsperson gebildet, nicht bei Herrn Pampelmuse. SI ist gelb – beide bilden Saccharase.','Alle Verdauungsgene gelb: Beide Personen bilden Laktase und Saccharase. INS ist schwarz, weil Darmzellen kein Insulin bilden.','SI leuchtet grün: Saccharase-Isomaltase fehlt bei Herrn Tomate. LCT ist gelb – Laktase ist vorhanden.','LCT und SI leuchten grün: Beide Enzyme fehlen bei Frau Gurke.'][i]}
    else{b.className='wrong';m.textContent='✘ Überlege: Welches Enzym fehlt bei dieser Person? Dann wird das Gen nur in der grün markierten Probe abgelesen.'}
    if(Object.keys(u1ok).length===4)unlock()}},need:()=>Object.keys(u1ok).length===4});
 // ---- Übung 2: Hybridisierung -> Leuchtmuster ----
